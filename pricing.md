@@ -2,9 +2,9 @@
 
 ## Teste grátis
 - Preço: R$ 0 por 7 dias
-- Cartão de crédito: não é necessário para começar o teste
+- Cartão de crédito: necessário para começar o teste, mas a cobrança só acontece depois dos 7 dias
 - Acesso: todas as funcionalidades do plano completo, sem limitação
-- Cancelamento: automático ao fim dos 7 dias caso não seja feita a assinatura
+- Cancelamento: pode ser feito a qualquer momento durante os 7 dias, sem cobrança. Se não for cancelado, a cobrança da assinatura acontece automaticamente ao fim do teste.
 
 ## Plano único
 - Preço: R$ 29,90 por mês (moeda: BRL)
