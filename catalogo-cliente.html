@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0" />
-<title>Monte sua decoração dos sonhos | AppDecore</title>
+<title>Catálogo | AppDecore</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@500;600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 <script src="https://cdn.tailwindcss.com"></script>
@@ -15,20 +15,16 @@
   body { font-family: 'Inter', sans-serif; }
   .fredoka { font-family: 'Fredoka', sans-serif; }
   * { -webkit-tap-highlight-color: transparent; }
-  @keyframes flutuar { 0%,100% { transform: translateY(0) rotate(0deg); } 50% { transform: translateY(-14px) rotate(4deg); } }
-  @keyframes brilho { 0%,100% { opacity: .5; transform: scale(1); } 50% { opacity: 1; transform: scale(1.15); } }
-  @keyframes entrar { from { opacity: 0; transform: translateY(14px); } to { opacity: 1; transform: translateY(0); } }
-  .anim-entrar { animation: entrar .35s ease-out; }
-  .anim-flutuar { animation: flutuar 4s ease-in-out infinite; }
-  .anim-brilho { animation: brilho 1.8s ease-in-out infinite; }
-  ::-webkit-scrollbar { width: 6px; }
+  @keyframes entrar { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+  .anim-entrar { animation: entrar .3s ease-out; }
+  ::-webkit-scrollbar { height: 6px; width: 6px; }
 </style>
 </head>
 <body style="background:#F4F6FD">
 <div id="root"></div>
 
 <script type="text/babel" data-presets="react" data-type="module">
-const { useState, useEffect, useMemo, useCallback } = React;
+const { useState, useEffect, useMemo } = React;
 
 /* ============================================================
    CONFIGURAÇÃO
@@ -37,529 +33,290 @@ const SUPABASE_URL = "https://drizqsevvmyyrdgczjvf.supabase.co";
 const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImRyaXpxc2V2dm15eXJkZ2N6anZmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODMzNDM0MzAsImV4cCI6MjA5ODkxOTQzMH0.uTzYirVcO-TFJ6BCyDY9A8_Etw4v32iWlOETWht_hxQ";
 const sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
-// TODO: trocar pela URL real do webhook do n8n quando ele estiver pronto
-const WEBHOOK_GERAR_PREVIA = "https://waha-n8n.svqcg7.easypanel.host/webhook/catalogo-gerar-previa";
-
-const BRAND = { azul: "#16308A", rosa: "#EC1E79", amarelo: "#FFC93C", roxo: "#8B5CF6", bg: "#F4F6FD", tinta: "#181A33" };
-
-const CATEGORIAS_ORDEM = [
-  { key: "mesa", label: "mesa", pergunta: "Qual estilo de mesa você imagina?", opcional: false },
-  { key: "painel", label: "painel", pergunta: "E o painel de fundo?", opcional: false },
-  { key: "boleira", label: "boleira", pergunta: "Qual boleira combina mais?", opcional: false },
-  { key: "doces", label: "suporte de doces", pergunta: "Quer um suporte pros docinhos?", opcional: true },
-  { key: "vasos", label: "vasos", pergunta: "Que tal uns vasinhos de plantas?", opcional: true },
-  { key: "arco", label: "arco de balão", pergunta: "Vamos de arco de balão?", opcional: true },
-  { key: "tapete", label: "tapete", pergunta: "Um tapete temático completa o visual?", opcional: true },
-];
-
-const TIPOS_FESTA = [
-  { valor: "aniversario_infantil", label: "Aniversário infantil", emoji: "🎂" },
-  { valor: "mesversario", label: "Mesversário", emoji: "🌙" },
-  { valor: "cha_revelacao", label: "Chá revelação", emoji: "🎀" },
-  { valor: "festa_junina", label: "Festa junina", emoji: "🌽" },
-  { valor: "adulto", label: "Festa adulto", emoji: "🥂" },
-  { valor: "outro", label: "Outro tipo de festa", emoji: "✨" },
-];
-
-const PALETAS_COR = [
-  { valor: "rosa_dourado", label: "Rosa e dourado", cores: ["#F9A8D4", "#FBBF24"] },
-  { valor: "azul_branco", label: "Azul e branco", cores: ["#93C5FD", "#FFFFFF"] },
-  { valor: "colorido", label: "Colorido vibrante", cores: ["#F87171", "#34D399", "#FBBF24"] },
-  { valor: "pastel", label: "Tons pastéis", cores: ["#FBCFE8", "#BFDBFE", "#FDE68A"] },
-];
-
-const NIVEIS = [
-  { valor: "simples", label: "Simples e charmoso", desc: "O essencial, bem feito" },
-  { valor: "completo", label: "Completo", desc: "Mesa, painel e detalhes" },
-  { valor: "luxo", label: "Luxo", desc: "Tudo incluso, sem limites" },
-];
+const AZUL = "#16308A";
 
 /* ============================================================
-   COMPONENTES DE APOIO
-============================================================ */
-function BarraProgresso({ percentual }) {
-  return (
-    <div className="w-full h-2 rounded-full overflow-hidden" style={{ background: "#E5E7EB" }}>
-      <div className="h-full rounded-full transition-all duration-500 ease-out" style={{ width: `${percentual}%`, background: `linear-gradient(90deg, ${BRAND.rosa}, ${BRAND.roxo})` }} />
-    </div>
-  );
-}
-
-function Cabecalho({ logo, nomeLoja, percentual, onVoltar, mostrarVoltar }) {
-  return (
-    <div className="sticky top-0 z-20 pt-4 pb-3 px-4" style={{ background: BRAND.bg }}>
-      <div className="max-w-md mx-auto flex items-center gap-3 mb-3">
-        {mostrarVoltar ? (
-          <button onClick={onVoltar} aria-label="Voltar" className="w-9 h-9 rounded-full flex items-center justify-center shrink-0 cursor-pointer" style={{ background: "#fff" }}>
-            <svg viewBox="0 0 24 24" fill="none" stroke={BRAND.tinta} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="w-4 h-4"><path d="m15 18-6-6 6-6" /></svg>
-          </button>
-        ) : <div className="w-9" />}
-        {logo ? (
-          <img src={logo} alt={nomeLoja} className="w-8 h-8 rounded-lg object-cover" />
-        ) : (
-          <div className="w-8 h-8 rounded-lg flex items-center justify-center text-white text-sm font-bold shrink-0" style={{ background: BRAND.rosa }}>{(nomeLoja || "?")[0]}</div>
-        )}
-        <p className="fredoka font-semibold text-sm truncate" style={{ color: BRAND.tinta }}>{nomeLoja}</p>
-      </div>
-      <div className="max-w-md mx-auto"><BarraProgresso percentual={percentual} /></div>
-    </div>
-  );
-}
-
-function BotaoPrimario({ children, onClick, disabled }) {
-  return (
-    <button
-      onClick={onClick}
-      disabled={disabled}
-      className="w-full py-4 rounded-2xl font-bold text-base text-white cursor-pointer transition-all duration-200 active:scale-[0.98] disabled:opacity-40 disabled:cursor-not-allowed"
-      style={{ background: `linear-gradient(90deg, ${BRAND.rosa}, ${BRAND.roxo})`, minHeight: 52 }}
-    >
-      {children}
-    </button>
-  );
-}
-
-function CardEscolha({ selecionado, onClick, children }) {
-  return (
-    <button
-      onClick={onClick}
-      className="w-full text-left rounded-2xl border-2 p-4 cursor-pointer transition-all duration-200 active:scale-[0.98]"
-      style={{
-        borderColor: selecionado ? BRAND.rosa : "#E5E7EB",
-        background: selecionado ? `${BRAND.rosa}0d` : "#fff",
-        minHeight: 52,
-      }}
-    >
-      {children}
-    </button>
-  );
-}
-
-function CardFoto({ item, selecionado, onClick }) {
-  return (
-    <button onClick={onClick} className="text-left rounded-2xl overflow-hidden border-2 cursor-pointer transition-all duration-200 active:scale-[0.97]" style={{ borderColor: selecionado ? BRAND.rosa : "#E5E7EB" }}>
-      <div className="relative aspect-square bg-slate-100">
-        <img src={item.imagem_url} className="w-full h-full object-cover" />
-        {selecionado && (
-          <div className="absolute inset-0 flex items-start justify-end p-2" style={{ background: `${BRAND.rosa}22` }}>
-            <div className="w-6 h-6 rounded-full flex items-center justify-center" style={{ background: BRAND.rosa }}>
-              <svg viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" className="w-3.5 h-3.5"><path d="M20 6 9 17l-5-5" /></svg>
-            </div>
-          </div>
-        )}
-      </div>
-      <p className="text-xs font-semibold px-2 py-2 truncate" style={{ color: BRAND.tinta }}>{item.nome_peca}</p>
-    </button>
-  );
-}
-
-/* ============================================================
-   DADOS DE DEMONSTRAÇÃO (usados só quando não há link real)
+   DADOS DE DEMONSTRAÇÃO
 ============================================================ */
 function fotoDemo(texto, cor) {
-  const svg = `<svg xmlns='http://www.w3.org/2000/svg' width='300' height='300'><rect width='300' height='300' fill='${cor}'/><text x='50%' y='50%' font-family='sans-serif' font-size='20' font-weight='bold' fill='white' text-anchor='middle' dominant-baseline='middle'>${texto}</text></svg>`;
+  const svg = `<svg xmlns='http://www.w3.org/2000/svg' width='400' height='400'><rect width='400' height='400' fill='${cor}'/><text x='50%' y='50%' font-family='sans-serif' font-size='22' font-weight='bold' fill='white' text-anchor='middle' dominant-baseline='middle'>${texto}</text></svg>`;
   return `data:image/svg+xml;utf8,${encodeURIComponent(svg)}`;
 }
-
-function gerarReferenciasDemo() {
+function gerarKitsDemo() {
   let idc = 0;
-  const item = (categoria, nome_peca, cor) => ({ id: `demo-${idc++}`, categoria, nome_peca, imagem_url: fotoDemo(nome_peca, cor) });
-  return {
-    tema: [item("tema", "Unicórnio rosa", "#EC1E79"), item("tema", "Safari aventura", "#FFC93C"), item("tema", "Fundo do mar", "#16308A"), item("tema", "Super-herói", "#8B5CF6")],
-    mesa: [item("mesa", "Cilindro rosa", "#EC1E79"), item("mesa", "Trio de mesas", "#8B5CF6"), item("mesa", "Mesa dupla", "#16308A")],
-    painel: [item("painel", "Redondo dourado", "#FFC93C"), item("painel", "Meia-lua azul", "#16308A")],
-    boleira: [item("boleira", "Boleira rosa", "#EC1E79"), item("boleira", "Boleira dourada", "#FFC93C")],
-    doces: [item("doces", "Suporte 3 andares", "#8B5CF6")],
-    arco: [item("arco", "Desconstruído", "#EC1E79"), item("arco", "Completo clássico", "#16308A")],
-  };
+  const kit = (nome, tipo_evento, publico, nivel, cor, preco, destaque) => ({
+    id: `demo-${idc++}`, nome, tipo_evento, publico, nivel, preco, em_destaque: !!destaque,
+    itens_inclusos: ["Mesa cilindro", "Painel redondo", "Boleira"],
+    fotos: [{ id: "f" + idc, imagem_url: fotoDemo(nome, cor) }],
+  });
+  return [
+    kit("Kit Diamante Unicórnio", "Aniversário Infantil", "Menina", "Diamante", "#EC1E79", 450, true),
+    kit("Kit Ouro Futebol", "Aniversário Infantil", "Menino", "Ouro", "#16308A", 320, true),
+    kit("Kit Prata Safari", "Mesversário", "Unissex", "Prata", "#8B5CF6", 180, false),
+    kit("Kit Luxo 15 Anos", "15 Anos", "Mulher", "Luxo", "#FFC93C", 890, false),
+    kit("Kit Minimalista Chá de Bebê", "Chá de Bebê/Fralda", "Unissex", "Minimalista", "#34D399", 150, false),
+  ];
+}
+
+/* ============================================================
+   COMPONENTES
+============================================================ */
+function ChipsFiltro({ label, opcoes, valor, onChange, corDestaque }) {
+  if (!opcoes.length) return null;
+  return (
+    <div className="mb-2.5">
+      <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wide mb-1">{label}</p>
+      <div className="flex gap-1.5 overflow-x-auto pb-1">
+        <button onClick={() => onChange("")} className="shrink-0 px-3 py-1.5 rounded-full text-xs font-semibold cursor-pointer transition-all" style={{ background: !valor ? corDestaque : "#fff", color: !valor ? "#fff" : "#334155", border: "1px solid " + (!valor ? corDestaque : "#E5E7EB") }}>Todos</button>
+        {opcoes.map((o) => (
+          <button key={o} onClick={() => onChange(o)} className="shrink-0 px-3 py-1.5 rounded-full text-xs font-semibold cursor-pointer transition-all" style={{ background: valor === o ? corDestaque : "#fff", color: valor === o ? "#fff" : "#334155", border: "1px solid " + (valor === o ? corDestaque : "#E5E7EB") }}>{o}</button>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+function CardKit({ kit, mostrarValores, corDestaque, favoritado, onFavoritar, onAbrir }) {
+  const foto = kit.fotos && kit.fotos[0];
+  return (
+    <div className="rounded-2xl overflow-hidden bg-white border border-slate-100 shadow-sm anim-entrar">
+      <button onClick={() => onAbrir(kit)} className="block w-full text-left cursor-pointer">
+        <div className="relative aspect-square bg-slate-100">
+          {foto ? <img src={foto.imagem_url} className="w-full h-full object-cover" /> : <div className="w-full h-full flex items-center justify-center text-3xl">🎁</div>}
+          {kit.em_destaque && <span className="absolute top-2 left-2 text-[10px] font-bold px-2 py-0.5 rounded-full text-white" style={{ background: "#FFC93C", color: "#5c4200" }}>⭐ Destaque</span>}
+        </div>
+        <div className="p-3 pb-1">
+          <p className="font-bold text-sm truncate" style={{ color: AZUL }}>{kit.nome}</p>
+          {(kit.tipo_evento || kit.nivel) && <p className="text-[11px] font-semibold truncate mt-0.5" style={{ color: corDestaque }}>{[kit.tipo_evento, kit.nivel].filter(Boolean).join(" · ")}</p>}
+          {mostrarValores && kit.preco && <p className="text-sm font-bold mt-1" style={{ color: AZUL }}>{Number(kit.preco).toLocaleString("pt-BR", { style: "currency", currency: "BRL" })}</p>}
+        </div>
+      </button>
+      <div className="px-3 pb-3 pt-1">
+        <button onClick={() => onFavoritar(kit)} className="w-full py-1.5 rounded-lg text-xs font-bold cursor-pointer flex items-center justify-center gap-1" style={{ background: favoritado ? `${corDestaque}22` : "#F1F5F9", color: favoritado ? corDestaque : "#64748b" }}>
+          {favoritado ? "❤️ Curtido" : "🤍 Curtir"}
+        </button>
+      </div>
+    </div>
+  );
+}
+
+function DetalheKit({ kit, mostrarValores, corDestaque, favoritado, onFavoritar, onFechar, whatsappContato, nomeLoja }) {
+  const [indiceFoto, setIndiceFoto] = useState(0);
+  const fotos = kit.fotos || [];
+  const linkKit = `${window.location.origin}${window.location.pathname}?d=${new URLSearchParams(window.location.search).get("d") || "demo"}&kit=${kit.id}`;
+  const mensagem = mostrarValores
+    ? `Oi! Vi o kit "${kit.nome}" no catálogo (${Number(kit.preco || 0).toLocaleString("pt-BR", { style: "currency", currency: "BRL" })}) e quero saber a disponibilidade.`
+    : `Oi! Vi o kit "${kit.nome}" no catálogo e quero saber o valor e a disponibilidade.`;
+
+  return (
+    <div className="fixed inset-0 z-50 bg-white overflow-y-auto anim-entrar">
+      <div className="sticky top-0 bg-white z-10 flex items-center justify-between px-4 py-3 border-b border-slate-100">
+        <button onClick={onFechar} className="w-9 h-9 rounded-full flex items-center justify-center cursor-pointer" style={{ background: "#F1F5F9" }}>
+          <svg viewBox="0 0 24 24" fill="none" stroke="#181A33" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="w-4 h-4"><path d="m15 18-6-6 6-6" /></svg>
+        </button>
+        <button onClick={() => navigator.clipboard.writeText(linkKit)} className="text-xs font-bold px-3 py-1.5 rounded-full cursor-pointer" style={{ background: "#F1F5F9", color: "#181A33" }}>🔗 Copiar link</button>
+      </div>
+
+      <div className="max-w-md mx-auto px-4 pb-8">
+        <div className="relative aspect-square rounded-3xl overflow-hidden bg-slate-100 mt-4 mb-2">
+          {fotos[indiceFoto] ? <img src={fotos[indiceFoto].imagem_url} className="w-full h-full object-cover" /> : <div className="w-full h-full flex items-center justify-center text-4xl">🎁</div>}
+        </div>
+        {fotos.length > 1 && (
+          <div className="flex gap-2 mb-4 overflow-x-auto">
+            {fotos.map((f, i) => (
+              <button key={f.id} onClick={() => setIndiceFoto(i)} className="shrink-0 w-14 h-14 rounded-xl overflow-hidden cursor-pointer" style={{ border: i === indiceFoto ? `2px solid ${corDestaque}` : "2px solid transparent" }}>
+                <img src={f.imagem_url} className="w-full h-full object-cover" />
+              </button>
+            ))}
+          </div>
+        )}
+
+        <h1 className="fredoka text-xl font-bold mb-1" style={{ color: AZUL }}>{kit.nome}</h1>
+        {(kit.tipo_evento || kit.publico || kit.nivel) && (
+          <p className="text-sm font-semibold mb-2" style={{ color: corDestaque }}>{[kit.tipo_evento, kit.publico, kit.nivel].filter(Boolean).join(" · ")}</p>
+        )}
+        {mostrarValores && kit.preco && <p className="text-2xl font-bold mb-4" style={{ color: AZUL }}>{Number(kit.preco).toLocaleString("pt-BR", { style: "currency", currency: "BRL" })}</p>}
+
+        {kit.itens_inclusos && kit.itens_inclusos.length > 0 && (
+          <div className="mb-6">
+            <p className="text-xs font-bold text-slate-400 uppercase tracking-wide mb-2">O que vem no kit</p>
+            <ul className="space-y-1.5">
+              {kit.itens_inclusos.map((item, i) => (
+                <li key={i} className="text-sm flex items-center gap-2" style={{ color: AZUL }}>
+                  <span style={{ color: corDestaque }}>✓</span> {item}
+                </li>
+              ))}
+            </ul>
+          </div>
+        )}
+
+        <div className="flex gap-2">
+          <button onClick={() => onFavoritar(kit)} className="px-4 py-3 rounded-2xl font-bold text-sm cursor-pointer" style={{ background: favoritado ? `${corDestaque}22` : "#F1F5F9", color: favoritado ? corDestaque : "#64748b" }}>
+            {favoritado ? "❤️" : "🤍"}
+          </button>
+          <a href={`https://wa.me/${whatsappContato}?text=${encodeURIComponent(mensagem)}`} className="flex-1 text-center py-3 rounded-2xl font-bold text-sm text-white cursor-pointer" style={{ background: "#25D366" }}>
+            Quero esse kit no WhatsApp
+          </a>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function BarraFavoritos({ favoritos, corDestaque, whatsappContato, nomeLoja }) {
+  const [aberto, setAberto] = useState(false);
+  if (favoritos.length === 0) return null;
+  const mensagem = `Oi! Gostei destes kits no catálogo:\n\n${favoritos.map((k) => `• ${k.nome}`).join("\n")}\n\nQuero saber a disponibilidade!`;
+  return (
+    <>
+      <button onClick={() => setAberto(true)} className="fixed bottom-4 right-4 z-30 px-4 py-3 rounded-full font-bold text-sm text-white shadow-lg cursor-pointer flex items-center gap-2" style={{ background: corDestaque }}>
+        ❤️ {favoritos.length} curtido{favoritos.length > 1 ? "s" : ""}
+      </button>
+      {aberto && (
+        <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center bg-black/50 p-0 sm:p-4" onClick={() => setAberto(false)}>
+          <div className="bg-white rounded-t-3xl sm:rounded-3xl w-full sm:max-w-sm p-6" onClick={(e) => e.stopPropagation()}>
+            <h3 className="fredoka text-lg font-bold mb-3" style={{ color: AZUL }}>Seus kits curtidos</h3>
+            <ul className="space-y-2 mb-5 max-h-60 overflow-y-auto">
+              {favoritos.map((k) => <li key={k.id} className="text-sm" style={{ color: AZUL }}>• {k.nome}</li>)}
+            </ul>
+            <a href={`https://wa.me/${whatsappContato}?text=${encodeURIComponent(mensagem)}`} className="block text-center py-3 rounded-2xl font-bold text-sm text-white cursor-pointer" style={{ background: "#25D366" }}>
+              Mandar tudo pro WhatsApp
+            </a>
+            <button onClick={() => setAberto(false)} className="w-full text-center py-2.5 mt-2 text-sm font-semibold cursor-pointer" style={{ color: "#94a3b8" }}>Fechar</button>
+          </div>
+        </div>
+      )}
+    </>
+  );
 }
 
 /* ============================================================
    APP PRINCIPAL
 ============================================================ */
 function App() {
-  const decoradoraId = new URLSearchParams(window.location.search).get("d");
+  const params = new URLSearchParams(window.location.search);
+  const decoradoraId = params.get("d");
+  const kitIdDireto = params.get("kit");
 
   const [carregando, setCarregando] = useState(true);
-  const [erroCarregamento, setErroCarregamento] = useState("");
+  const [erro, setErro] = useState("");
   const [decoradora, setDecoradora] = useState(null);
-  const [referencias, setReferencias] = useState({});
-
-  const [historico, setHistorico] = useState(["boas-vindas"]);
-  const [respostas, setRespostas] = useState({ escolhas_foto: {} });
-  const [gerando, setGerando] = useState(false);
-  const [erroGeracao, setErroGeracao] = useState("");
-  const [resultado, setResultado] = useState(null);
-
-  const etapa = historico[historico.length - 1];
+  const [kits, setKits] = useState([]);
+  const [busca, setBusca] = useState("");
+  const [filtroEvento, setFiltroEvento] = useState("");
+  const [filtroPublico, setFiltroPublico] = useState("");
+  const [filtroNivel, setFiltroNivel] = useState("");
+  const [kitAberto, setKitAberto] = useState(null);
+  const [favoritos, setFavoritos] = useState([]);
 
   useEffect(() => {
     async function carregar() {
       if (!decoradoraId) {
-        // Modo demonstração: sem link de verdade, carrega dados de exemplo
-        // pra dar pra ver e testar o quiz sem precisar do Supabase.
-        setDecoradora({ nome_loja: "Studio Encanto (demonstração)", logo_data_url: null, whatsapp_contato: "5511999999999" });
-        setReferencias(gerarReferenciasDemo());
+        setDecoradora({ nome_loja: "Studio Encanto (demonstração)", logo_data_url: null, whatsapp_contato: "5511999999999", catalogo_cor_destaque: "#EC1E79", catalogo_texto_boasvindas: "Bem-vinda ao nosso catálogo! Escolha seu kit dos sonhos 💕", catalogo_mostrar_valores: true });
+        setKits(gerarKitsDemo());
         setCarregando(false);
         return;
       }
       const { data: dec, error: erroDec } = await sb.from("catalogo_publico").select("*").eq("decoradora_id", decoradoraId).maybeSingle();
-      if (erroDec || !dec) { setErroCarregamento("Não achamos esse catálogo. Confira o link com quem te enviou."); setCarregando(false); return; }
-      const { data: refs } = await sb.from("catalogo_referencias").select("*").eq("decoradora_id", decoradoraId);
-      const agrupado = {};
-      (refs || []).forEach((r) => { (agrupado[r.categoria] = agrupado[r.categoria] || []).push(r); });
+      if (erroDec || !dec) { setErro("Não achamos esse catálogo. Confira o link com quem te enviou."); setCarregando(false); return; }
+      const { data: listaKits } = await sb.from("catalogo_kits").select("*").eq("decoradora_id", decoradoraId).eq("status", "publicado").order("em_destaque", { ascending: false });
+      const { data: listaFotos } = await sb.from("catalogo_kit_fotos").select("*").order("ordem", { ascending: true });
+      const fotosPorKit = {};
+      (listaFotos || []).forEach((f) => { (fotosPorKit[f.kit_id] = fotosPorKit[f.kit_id] || []).push(f); });
+      const kitsCompletos = (listaKits || []).map((k) => ({ ...k, fotos: fotosPorKit[k.id] || [] }));
       setDecoradora(dec);
-      setReferencias(agrupado);
+      setKits(kitsCompletos);
       setCarregando(false);
+      if (kitIdDireto) {
+        const alvo = kitsCompletos.find((k) => k.id === kitIdDireto);
+        if (alvo) setKitAberto(alvo);
+      }
     }
     carregar();
   }, [decoradoraId]);
 
-  const categoriasComFoto = useMemo(
-    () => CATEGORIAS_ORDEM.filter((c) => (referencias[c.key] || []).length > 0),
-    [referencias]
+  const corDestaque = decoradora?.catalogo_cor_destaque || "#EC1E79";
+  const mostrarValores = decoradora?.catalogo_mostrar_valores !== false;
+  const whatsappContato = (decoradora?.whatsapp_contato || "").replace(/\D/g, "");
+
+  const eventosDisponiveis = useMemo(() => [...new Set(kits.map((k) => k.tipo_evento).filter(Boolean))], [kits]);
+  const publicosDisponiveis = useMemo(() => [...new Set(kits.map((k) => k.publico).filter(Boolean))], [kits]);
+  const niveisDisponiveis = useMemo(() => [...new Set(kits.map((k) => k.nivel).filter(Boolean))], [kits]);
+
+  const filtrados = kits.filter((k) =>
+    k.nome.toLowerCase().includes(busca.toLowerCase()) &&
+    (!filtroEvento || k.tipo_evento === filtroEvento) &&
+    (!filtroPublico || k.publico === filtroPublico) &&
+    (!filtroNivel || k.nivel === filtroNivel)
   );
+  const destaques = filtrados.filter((k) => k.em_destaque);
+  const restante = filtrados.filter((k) => !k.em_destaque);
 
-  const totalEtapas = 8 + categoriasComFoto.length;
-  const indiceEtapaVisual = Math.max(0, historico.length - 1);
-  const percentual = Math.min(100, Math.round((indiceEtapaVisual / totalEtapas) * 100));
-
-  function ir(proxima) { setHistorico((h) => [...h, proxima]); }
-  function voltar() { setHistorico((h) => (h.length > 1 ? h.slice(0, -1) : h)); }
-  function responder(campo, valor) { setRespostas((r) => ({ ...r, [campo]: valor })); }
-
-  function proximaCategoriaFoto(depoisDeKey) {
-    const idx = depoisDeKey ? categoriasComFoto.findIndex((c) => c.key === depoisDeKey) : -1;
-    const proxima = categoriasComFoto[idx + 1];
-    return proxima ? `foto:${proxima.key}` : "cor";
+  function toggleFavorito(kit) {
+    setFavoritos((f) => f.some((x) => x.id === kit.id) ? f.filter((x) => x.id !== kit.id) : [...f, kit]);
   }
 
-  async function handleGerar() {
-    ir("loading");
-    setGerando(true);
-    setErroGeracao("");
-    try {
-      const resp = await fetch(WEBHOOK_GERAR_PREVIA, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ decoradora_id: decoradoraId, origem: "cliente", respostas }),
-      });
-      const dados = await resp.json();
-      if (!resp.ok || dados.erro) {
-        setErroGeracao(dados.erro || "Não conseguimos gerar sua prévia agora. Tenta de novo em instantes.");
-      } else {
-        setResultado(dados);
-      }
-    } catch (err) {
-      setErroGeracao("Erro de conexão. Confira sua internet e tenta de novo.");
-    }
-    setGerando(false);
-    ir("resultado");
-  }
-
-  if (carregando) {
-    return <div className="min-h-screen flex items-center justify-center text-sm text-slate-400">Carregando...</div>;
-  }
-  if (erroCarregamento) {
-    return (
-      <div className="min-h-screen flex items-center justify-center p-6 text-center">
-        <div>
-          <p className="text-3xl mb-3">😕</p>
-          <p className="font-semibold" style={{ color: BRAND.tinta }}>{erroCarregamento}</p>
-        </div>
-      </div>
-    );
-  }
-
-  const mostrarVoltar = !["boas-vindas", "loading", "resultado"].includes(etapa);
+  if (carregando) return <div className="min-h-screen flex items-center justify-center text-sm text-slate-400">Carregando...</div>;
+  if (erro) return <div className="min-h-screen flex items-center justify-center p-6 text-center"><div><p className="text-3xl mb-3">😕</p><p className="font-semibold" style={{ color: AZUL }}>{erro}</p></div></div>;
 
   return (
-    <div className="min-h-screen pb-8">
-      {etapa !== "loading" && etapa !== "resultado" && (
-        <Cabecalho logo={decoradora.logo_data_url} nomeLoja={decoradora.nome_loja} percentual={etapa === "boas-vindas" ? 0 : percentual} onVoltar={voltar} mostrarVoltar={mostrarVoltar} />
+    <div className="min-h-screen pb-10">
+      {decoradora.catalogo_banner_url && (
+        <div className="w-full h-32 sm:h-44 bg-slate-100"><img src={decoradora.catalogo_banner_url} className="w-full h-full object-cover" /></div>
       )}
 
-      <div className="max-w-md mx-auto px-4 pt-6">
-
-        {etapa === "boas-vindas" && (
-          <div className="anim-entrar text-center pt-10">
-            <div className="relative w-24 h-24 mx-auto mb-6">
-              <div className="absolute inset-0 rounded-full anim-brilho" style={{ background: `${BRAND.rosa}30` }} />
-              <div className="relative w-24 h-24 rounded-full flex items-center justify-center text-4xl anim-flutuar" style={{ background: `linear-gradient(135deg, ${BRAND.rosa}, ${BRAND.roxo})` }}>🎉</div>
-            </div>
-            <h1 className="fredoka text-2xl font-bold mb-3" style={{ color: BRAND.tinta }}>Vamos criar a decoração dos seus sonhos!</h1>
-            <p className="text-sm text-slate-500 leading-relaxed mb-8 px-2">
-              É bem simples: você vai respondendo algumas perguntinhas rápidas sobre como imagina a festa, e no final a gente te mostra uma prévia visual, do jeitinho que você sonhou. Vamos lá? ✨
-            </p>
-            <BotaoPrimario onClick={() => ir("tipo_festa")}>Começar</BotaoPrimario>
+      <div className="max-w-2xl mx-auto px-4">
+        <div className="flex items-center gap-3 pt-5 pb-3">
+          {decoradora.logo_data_url ? <img src={decoradora.logo_data_url} className="w-12 h-12 rounded-2xl object-cover" /> : <div className="w-12 h-12 rounded-2xl flex items-center justify-center text-white text-lg font-bold" style={{ background: corDestaque }}>{(decoradora.nome_loja || "?")[0]}</div>}
+          <div>
+            <h1 className="fredoka text-lg font-bold" style={{ color: AZUL }}>{decoradora.nome_loja}</h1>
+            {decoradora.catalogo_instagram && <a href={`https://instagram.com/${decoradora.catalogo_instagram.replace("@", "")}`} className="text-xs font-semibold" style={{ color: corDestaque }}>@{decoradora.catalogo_instagram.replace("@", "")}</a>}
           </div>
-        )}
+        </div>
 
-        {etapa === "tipo_festa" && (
-          <div className="anim-entrar">
-            <h2 className="fredoka text-xl font-bold mb-5" style={{ color: BRAND.tinta }}>Que tipo de festa é?</h2>
-            <div className="space-y-3">
-              {TIPOS_FESTA.map((t) => (
-                <CardEscolha key={t.valor} selecionado={respostas.tipo_festa === t.valor} onClick={() => { responder("tipo_festa", t.valor); ir(["aniversario_infantil", "mesversario"].includes(t.valor) ? "idade" : "tema"); }}>
-                  <span className="flex items-center gap-3"><span className="text-2xl">{t.emoji}</span><span className="font-semibold text-sm" style={{ color: BRAND.tinta }}>{t.label}</span></span>
-                </CardEscolha>
-              ))}
-            </div>
-          </div>
-        )}
+        {decoradora.catalogo_texto_boasvindas && <p className="text-sm text-slate-500 mb-5">{decoradora.catalogo_texto_boasvindas}</p>}
 
-        {etapa === "idade" && (
-          <div className="anim-entrar">
-            <h2 className="fredoka text-xl font-bold mb-5" style={{ color: BRAND.tinta }}>Quantos aninhos vai fazer? 🎈</h2>
-            <input
-              type="number" min="0" max="120" inputMode="numeric"
-              value={respostas.idade || ""}
-              onChange={(e) => responder("idade", e.target.value)}
-              placeholder="Ex: 5"
-              className="w-full px-4 py-4 rounded-2xl border-2 border-slate-200 text-lg text-center font-semibold mb-5"
-              style={{ color: BRAND.tinta }}
-              autoFocus
-            />
-            <BotaoPrimario onClick={() => ir("tema")} disabled={!respostas.idade}>Continuar</BotaoPrimario>
-          </div>
-        )}
+        <input value={busca} onChange={(e) => setBusca(e.target.value)} placeholder="Buscar kit..." className="w-full px-4 py-3 rounded-2xl border-2 border-slate-200 text-sm mb-4" />
 
-        {etapa === "tema" && (() => {
-          const temas = referencias.tema || [];
-          const busca = (respostas.buscaTema || "").toLowerCase();
-          const filtrados = temas.filter((t) => t.nome_peca.toLowerCase().includes(busca));
-          const usarTextoLivre = temas.length === 0 || respostas.mostrarTextoLivreTema;
-          return (
-            <div className="anim-entrar">
-              <h2 className="fredoka text-xl font-bold mb-2" style={{ color: BRAND.tinta }}>Qual o tema da festa?</h2>
-              <p className="text-xs text-slate-400 mb-4">
-                {temas.length > 0 ? `Escolha entre os temas que ${decoradora.nome_loja} já decorou.` : 'Descreva o tema que você imagina.'}
-              </p>
+        <ChipsFiltro label="Tipo de evento" opcoes={eventosDisponiveis} valor={filtroEvento} onChange={setFiltroEvento} corDestaque={corDestaque} />
+        <ChipsFiltro label="Público" opcoes={publicosDisponiveis} valor={filtroPublico} onChange={setFiltroPublico} corDestaque={corDestaque} />
+        <ChipsFiltro label="Nível" opcoes={niveisDisponiveis} valor={filtroNivel} onChange={setFiltroNivel} corDestaque={corDestaque} />
 
-              {temas.length > 0 && !usarTextoLivre && (
-                <>
-                  <input
-                    value={respostas.buscaTema || ""}
-                    onChange={(e) => responder("buscaTema", e.target.value)}
-                    placeholder="Buscar tema (ex: unicórnio, safari...)"
-                    className="w-full px-4 py-3 rounded-2xl border-2 border-slate-200 text-sm mb-3"
-                    autoFocus
-                  />
-                  <div className="grid grid-cols-2 gap-3 mb-4 max-h-[50vh] overflow-y-auto pr-1">
-                    {filtrados.map((t) => (
-                      <CardFoto
-                        key={t.id}
-                        item={t}
-                        selecionado={respostas.temaFotoUrl === t.imagem_url}
-                        onClick={() => {
-                          setRespostas((r) => ({ ...r, tema: t.nome_peca, temaFotoUrl: t.imagem_url }));
-                          ir(proximaCategoriaFoto(null));
-                        }}
-                      />
-                    ))}
-                    {filtrados.length === 0 && <p className="col-span-2 text-xs text-slate-400 text-center py-6">Nenhum tema encontrado com esse nome.</p>}
-                  </div>
-                  <button
-                    onClick={() => responder("mostrarTextoLivreTema", true)}
-                    className="w-full text-center py-3 rounded-2xl text-sm font-semibold cursor-pointer"
-                    style={{ color: "#94a3b8", background: "#F1F5F9" }}
-                  >
-                    Não achei meu tema, quero descrever
-                  </button>
-                </>
-              )}
+        {filtrados.length === 0 && <p className="text-center text-sm text-slate-400 py-16">Nenhum kit encontrado.</p>}
 
-              {usarTextoLivre && (
-                <>
-                  <textarea
-                    value={respostas.temaFotoUrl ? "" : (respostas.tema || "")}
-                    onChange={(e) => setRespostas((r) => ({ ...r, tema: e.target.value, temaFotoUrl: null }))}
-                    placeholder="Digite o tema aqui..."
-                    rows={3}
-                    className="w-full px-4 py-3 rounded-2xl border-2 border-slate-200 text-sm mb-5"
-                    autoFocus
-                  />
-                  <BotaoPrimario onClick={() => ir(proximaCategoriaFoto(null))} disabled={!respostas.tema || !respostas.tema.trim()}>Continuar</BotaoPrimario>
-                </>
-              )}
-            </div>
-          );
-        })()}
-
-        {etapa.startsWith("foto:") && (() => {
-          const catKey = etapa.split(":")[1];
-          const catInfo = CATEGORIAS_ORDEM.find((c) => c.key === catKey);
-          const fotos = referencias[catKey] || [];
-          const selecionada = respostas.escolhas_foto[catKey];
-          return (
-            <div className="anim-entrar">
-              <h2 className="fredoka text-xl font-bold mb-5" style={{ color: BRAND.tinta }}>{catInfo.pergunta}</h2>
-              <div className="grid grid-cols-2 gap-3 mb-5">
-                {fotos.map((f) => (
-                  <CardFoto key={f.id} item={f} selecionado={selecionada?.id === f.id}
-                    onClick={() => {
-                      const novasEscolhas = { ...respostas.escolhas_foto, [catKey]: f };
-                      setRespostas((r) => ({ ...r, escolhas_foto: novasEscolhas }));
-                      ir(proximaCategoriaFoto(catKey));
-                    }}
-                  />
-                ))}
-              </div>
-              {catInfo.opcional && (
-                <button
-                  onClick={() => {
-                    const novasEscolhas = { ...respostas.escolhas_foto };
-                    delete novasEscolhas[catKey];
-                    setRespostas((r) => ({ ...r, escolhas_foto: novasEscolhas }));
-                    ir(proximaCategoriaFoto(catKey));
-                  }}
-                  className="w-full text-center py-3 rounded-2xl text-sm font-semibold cursor-pointer"
-                  style={{ color: "#94a3b8", background: "#F1F5F9" }}
-                >
-                  Não preciso de {catInfo.label}
-                </button>
-              )}
-            </div>
-          );
-        })()}
-
-        {etapa === "cor" && (
-          <div className="anim-entrar">
-            <h2 className="fredoka text-xl font-bold mb-5" style={{ color: BRAND.tinta }}>Qual paleta de cores?</h2>
-            <div className="grid grid-cols-2 gap-3 mb-3">
-              {PALETAS_COR.map((p) => (
-                <CardEscolha key={p.valor} selecionado={respostas.cor === p.valor} onClick={() => { responder("cor", p.valor); ir("nivel"); }}>
-                  <div className="flex gap-1 mb-2">{p.cores.map((c, i) => <div key={i} className="w-5 h-5 rounded-full border border-white" style={{ background: c, boxShadow: "0 0 0 1px #eee" }} />)}</div>
-                  <p className="text-xs font-semibold" style={{ color: BRAND.tinta }}>{p.label}</p>
-                </CardEscolha>
-              ))}
-            </div>
-            <input
-              value={respostas.cor === "outra" ? respostas.corTexto || "" : ""}
-              onFocus={() => responder("cor", "outra")}
-              onChange={(e) => { responder("cor", "outra"); responder("corTexto", e.target.value); }}
-              placeholder="Ou digite outra cor..."
-              className="w-full px-4 py-3 rounded-2xl border-2 border-slate-200 text-sm mb-4"
-            />
-            {respostas.cor === "outra" && <BotaoPrimario onClick={() => ir("nivel")} disabled={!respostas.corTexto}>Continuar</BotaoPrimario>}
-          </div>
-        )}
-
-        {etapa === "nivel" && (
-          <div className="anim-entrar">
-            <h2 className="fredoka text-xl font-bold mb-5" style={{ color: BRAND.tinta }}>Qual nível de decoração?</h2>
-            <div className="space-y-3">
-              {NIVEIS.map((n) => (
-                <CardEscolha key={n.valor} selecionado={respostas.nivel === n.valor} onClick={() => { responder("nivel", n.valor); ir("detalhe"); }}>
-                  <p className="font-semibold text-sm mb-0.5" style={{ color: BRAND.tinta }}>{n.label}</p>
-                  <p className="text-xs text-slate-400">{n.desc}</p>
-                </CardEscolha>
-              ))}
+        {destaques.length > 0 && (
+          <div className="mt-4 mb-2">
+            <p className="text-xs font-bold uppercase tracking-wide mb-2" style={{ color: corDestaque }}>⭐ Em destaque</p>
+            <div className="grid grid-cols-2 gap-3">
+              {destaques.map((k) => <CardKit key={k.id} kit={k} mostrarValores={mostrarValores} corDestaque={corDestaque} favoritado={favoritos.some((f) => f.id === k.id)} onFavoritar={toggleFavorito} onAbrir={setKitAberto} />)}
             </div>
           </div>
         )}
 
-        {etapa === "detalhe" && (
-          <div className="anim-entrar">
-            <h2 className="fredoka text-xl font-bold mb-2" style={{ color: BRAND.tinta }}>Algo especial que não pode faltar?</h2>
-            <p className="text-xs text-slate-400 mb-4">Opcional — se não tiver nada, pode pular.</p>
-            <textarea
-              value={respostas.detalhe || ""}
-              onChange={(e) => responder("detalhe", e.target.value)}
-              placeholder="Ex: o nome dela no painel, um balão gigante..."
-              rows={3}
-              className="w-full px-4 py-3 rounded-2xl border-2 border-slate-200 text-sm mb-5"
-            />
-            <BotaoPrimario onClick={() => ir("resumo")}>Continuar</BotaoPrimario>
-          </div>
-        )}
-
-        {etapa === "resumo" && (
-          <div className="anim-entrar">
-            <h2 className="fredoka text-xl font-bold mb-1" style={{ color: BRAND.tinta }}>Prontinho, confere aqui! 🎀</h2>
-            <p className="text-xs text-slate-400 mb-5">É assim que a sua decoração vai ser pensada:</p>
-            <div className="rounded-2xl border-2 border-dashed p-4 mb-6 space-y-2.5" style={{ borderColor: "#E5E7EB" }}>
-              <LinhaResumo label="Festa" valor={TIPOS_FESTA.find((t) => t.valor === respostas.tipo_festa)?.label} />
-              {respostas.idade && <LinhaResumo label="Idade" valor={`${respostas.idade} aninhos`} />}
-              <LinhaResumo label="Tema" valor={respostas.tema} />
-              {Object.entries(respostas.escolhas_foto).map(([cat, item]) => (
-                <LinhaResumo key={cat} label={CATEGORIAS_ORDEM.find((c) => c.key === cat)?.pergunta.replace(/[?]/g, "")} valor={item.nome_peca} />
-              ))}
-              <LinhaResumo label="Cores" valor={respostas.cor === "outra" ? respostas.corTexto : PALETAS_COR.find((p) => p.valor === respostas.cor)?.label} />
-              <LinhaResumo label="Nível" valor={NIVEIS.find((n) => n.valor === respostas.nivel)?.label} />
-              {respostas.detalhe && <LinhaResumo label="Detalhe especial" valor={respostas.detalhe} />}
+        {restante.length > 0 && (
+          <div className="mt-5">
+            {destaques.length > 0 && <p className="text-xs font-bold uppercase tracking-wide mb-2 text-slate-400">Todos os kits</p>}
+            <div className="grid grid-cols-2 gap-3">
+              {restante.map((k) => <CardKit key={k.id} kit={k} mostrarValores={mostrarValores} corDestaque={corDestaque} favoritado={favoritos.some((f) => f.id === k.id)} onFavoritar={toggleFavorito} onAbrir={setKitAberto} />)}
             </div>
-            <BotaoPrimario onClick={() => ir("contato")}>Está tudo certo, continuar</BotaoPrimario>
           </div>
         )}
-
-        {etapa === "contato" && (
-          <div className="anim-entrar">
-            <h2 className="fredoka text-xl font-bold mb-2" style={{ color: BRAND.tinta }}>Só mais uma coisinha 📱</h2>
-            <p className="text-xs text-slate-400 mb-4">Seu WhatsApp, pra {decoradora.nome_loja} poder te enviar novidades sobre a sua festa.</p>
-            <input
-              type="tel" inputMode="tel"
-              value={respostas.whatsapp || ""}
-              onChange={(e) => responder("whatsapp", e.target.value)}
-              placeholder="(11) 91234-5678"
-              className="w-full px-4 py-4 rounded-2xl border-2 border-slate-200 text-base mb-5"
-              autoFocus
-            />
-            <BotaoPrimario onClick={handleGerar} disabled={!respostas.whatsapp || respostas.whatsapp.replace(/\D/g, "").length < 10}>
-              Gerar minha decoração ✨
-            </BotaoPrimario>
-          </div>
-        )}
-
-        {etapa === "loading" && (
-          <div className="min-h-[70vh] flex flex-col items-center justify-center text-center px-6">
-            <div className="relative w-28 h-28 mb-8">
-              <div className="absolute inset-0 rounded-full anim-brilho" style={{ background: `${BRAND.roxo}30` }} />
-              <div className="relative w-28 h-28 rounded-full flex items-center justify-center text-5xl anim-flutuar" style={{ background: `linear-gradient(135deg, ${BRAND.rosa}, ${BRAND.roxo})` }}>🎨</div>
-            </div>
-            <p className="fredoka text-lg font-bold mb-2" style={{ color: BRAND.tinta }}>Criando sua decoração dos sonhos...</p>
-            <p className="text-sm text-slate-400">Isso leva só alguns segundos ✨</p>
-          </div>
-        )}
-
-        {etapa === "resultado" && (
-          <div className="anim-entrar pt-4">
-            {erroGeracao ? (
-              <div className="text-center pt-10">
-                <p className="text-3xl mb-3">😕</p>
-                <p className="font-semibold mb-2" style={{ color: BRAND.tinta }}>{erroGeracao}</p>
-                <button onClick={() => { setErroGeracao(""); ir("contato"); }} className="text-sm font-semibold underline cursor-pointer" style={{ color: BRAND.rosa }}>Tentar de novo</button>
-              </div>
-            ) : resultado ? (
-              <>
-                <h2 className="fredoka text-xl font-bold mb-4 text-center" style={{ color: BRAND.tinta }}>Sua prévia ficou assim! 🎉</h2>
-                <img src={resultado.imagem_url} className="w-full rounded-3xl border-2 border-slate-100 mb-5" />
-                <a
-                  href={`https://wa.me/${(() => { let d = (decoradora.whatsapp_contato || "").replace(/\D/g, ""); return d && !d.startsWith("55") ? "55" + d : d; })()}?text=${encodeURIComponent(`Gostei desse! Quero saber mais.\n\n${resultado.imagem_url}`)}`}
-                  className="block w-full text-center py-4 rounded-2xl font-bold text-base text-white cursor-pointer mb-3"
-                  style={{ background: "#25D366" }}
-                >
-                  Enviar pra {decoradora.nome_loja} no WhatsApp
-                </a>
-                <button onClick={() => { setResultado(null); setHistorico(["boas-vindas"]); setRespostas({ escolhas_foto: {} }); }} className="w-full text-center py-3 text-sm font-semibold cursor-pointer" style={{ color: "#94a3b8" }}>
-                  Fazer outra tentativa
-                </button>
-              </>
-            ) : null}
-          </div>
-        )}
-
       </div>
-    </div>
-  );
-}
 
-function LinhaResumo({ label, valor }) {
-  if (!valor) return null;
-  return (
-    <div className="flex justify-between gap-3 text-sm">
-      <span className="text-slate-400 shrink-0">{label}:</span>
-      <span className="font-semibold text-right" style={{ color: BRAND.tinta }}>{valor}</span>
+      {kitAberto && (
+        <DetalheKit
+          kit={kitAberto}
+          mostrarValores={mostrarValores}
+          corDestaque={corDestaque}
+          favoritado={favoritos.some((f) => f.id === kitAberto.id)}
+          onFavoritar={toggleFavorito}
+          onFechar={() => setKitAberto(null)}
+          whatsappContato={whatsappContato}
+          nomeLoja={decoradora.nome_loja}
+        />
+      )}
+
+      <BarraFavoritos favoritos={favoritos} corDestaque={corDestaque} whatsappContato={whatsappContato} nomeLoja={decoradora.nome_loja} />
     </div>
   );
 }
