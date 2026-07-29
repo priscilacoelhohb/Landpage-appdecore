@@ -165,6 +165,7 @@ function gerarReferenciasDemo() {
   let idc = 0;
   const item = (categoria, nome_peca, cor) => ({ id: `demo-${idc++}`, categoria, nome_peca, imagem_url: fotoDemo(nome_peca, cor) });
   return {
+    tema: [item("tema", "Unicórnio rosa", "#EC1E79"), item("tema", "Safari aventura", "#FFC93C"), item("tema", "Fundo do mar", "#16308A"), item("tema", "Super-herói", "#8B5CF6")],
     mesa: [item("mesa", "Cilindro rosa", "#EC1E79"), item("mesa", "Trio de mesas", "#8B5CF6"), item("mesa", "Mesa dupla", "#16308A")],
     painel: [item("painel", "Redondo dourado", "#FFC93C"), item("painel", "Meia-lua azul", "#16308A")],
     boleira: [item("boleira", "Boleira rosa", "#EC1E79"), item("boleira", "Boleira dourada", "#FFC93C")],
@@ -323,22 +324,67 @@ function App() {
           </div>
         )}
 
-        {etapa === "tema" && (
-          <div className="anim-entrar">
-            <h2 className="fredoka text-xl font-bold mb-2" style={{ color: BRAND.tinta }}>Qual o tema da festa?</h2>
-            <p className="text-xs text-slate-400 mb-4">Pode ser um personagem, um estilo, o que você imaginar — ex: "Unicórnio rosa e dourado", "Safari aventura", "Fundo do mar"</p>
-            <textarea
-              value={respostas.tema || ""}
-              onChange={(e) => responder("tema", e.target.value)}
-              placeholder="Digite o tema aqui..."
-              rows={3}
-              className="w-full px-4 py-3 rounded-2xl border-2 border-slate-200 text-sm mb-5"
-              style={{ color: BRAND.tinta }}
-              autoFocus
-            />
-            <BotaoPrimario onClick={() => ir(proximaCategoriaFoto(null))} disabled={!respostas.tema || !respostas.tema.trim()}>Continuar</BotaoPrimario>
-          </div>
-        )}
+        {etapa === "tema" && (() => {
+          const temas = referencias.tema || [];
+          const busca = (respostas.buscaTema || "").toLowerCase();
+          const filtrados = temas.filter((t) => t.nome_peca.toLowerCase().includes(busca));
+          const usarTextoLivre = temas.length === 0 || respostas.mostrarTextoLivreTema;
+          return (
+            <div className="anim-entrar">
+              <h2 className="fredoka text-xl font-bold mb-2" style={{ color: BRAND.tinta }}>Qual o tema da festa?</h2>
+              <p className="text-xs text-slate-400 mb-4">
+                {temas.length > 0 ? `Escolha entre os temas que ${decoradora.nome_loja} já decorou.` : 'Descreva o tema que você imagina.'}
+              </p>
+
+              {temas.length > 0 && !usarTextoLivre && (
+                <>
+                  <input
+                    value={respostas.buscaTema || ""}
+                    onChange={(e) => responder("buscaTema", e.target.value)}
+                    placeholder="Buscar tema (ex: unicórnio, safari...)"
+                    className="w-full px-4 py-3 rounded-2xl border-2 border-slate-200 text-sm mb-3"
+                    autoFocus
+                  />
+                  <div className="grid grid-cols-2 gap-3 mb-4 max-h-[50vh] overflow-y-auto pr-1">
+                    {filtrados.map((t) => (
+                      <CardFoto
+                        key={t.id}
+                        item={t}
+                        selecionado={respostas.temaFotoUrl === t.imagem_url}
+                        onClick={() => {
+                          setRespostas((r) => ({ ...r, tema: t.nome_peca, temaFotoUrl: t.imagem_url }));
+                          ir(proximaCategoriaFoto(null));
+                        }}
+                      />
+                    ))}
+                    {filtrados.length === 0 && <p className="col-span-2 text-xs text-slate-400 text-center py-6">Nenhum tema encontrado com esse nome.</p>}
+                  </div>
+                  <button
+                    onClick={() => responder("mostrarTextoLivreTema", true)}
+                    className="w-full text-center py-3 rounded-2xl text-sm font-semibold cursor-pointer"
+                    style={{ color: "#94a3b8", background: "#F1F5F9" }}
+                  >
+                    Não achei meu tema, quero descrever
+                  </button>
+                </>
+              )}
+
+              {usarTextoLivre && (
+                <>
+                  <textarea
+                    value={respostas.temaFotoUrl ? "" : (respostas.tema || "")}
+                    onChange={(e) => setRespostas((r) => ({ ...r, tema: e.target.value, temaFotoUrl: null }))}
+                    placeholder="Digite o tema aqui..."
+                    rows={3}
+                    className="w-full px-4 py-3 rounded-2xl border-2 border-slate-200 text-sm mb-5"
+                    autoFocus
+                  />
+                  <BotaoPrimario onClick={() => ir(proximaCategoriaFoto(null))} disabled={!respostas.tema || !respostas.tema.trim()}>Continuar</BotaoPrimario>
+                </>
+              )}
+            </div>
+          );
+        })()}
 
         {etapa.startsWith("foto:") && (() => {
           const catKey = etapa.split(":")[1];
@@ -489,7 +535,7 @@ function App() {
                 <h2 className="fredoka text-xl font-bold mb-4 text-center" style={{ color: BRAND.tinta }}>Sua prévia ficou assim! 🎉</h2>
                 <img src={resultado.imagem_url} className="w-full rounded-3xl border-2 border-slate-100 mb-5" />
                 <a
-                  href={`https://wa.me/${(decoradora.whatsapp_contato || "").replace(/\D/g, "")}?text=${encodeURIComponent(`Gostei desse! Quero saber mais.\n\n${resultado.imagem_url}`)}`}
+                  href={`https://wa.me/${(() => { let d = (decoradora.whatsapp_contato || "").replace(/\D/g, ""); return d && !d.startsWith("55") ? "55" + d : d; })()}?text=${encodeURIComponent(`Gostei desse! Quero saber mais.\n\n${resultado.imagem_url}`)}`}
                   className="block w-full text-center py-4 rounded-2xl font-bold text-base text-white cursor-pointer mb-3"
                   style={{ background: "#25D366" }}
                 >
