@@ -102,6 +102,7 @@ function CardKit({ kit, mostrarValores, corDestaque, favoritado, onFavoritar, on
 
 function DetalheKit({ kit, mostrarValores, corDestaque, favoritado, onFavoritar, onFechar, whatsappContato, nomeLoja }) {
   const [indiceFoto, setIndiceFoto] = useState(0);
+  const [fotoAmpliada, setFotoAmpliada] = useState(false);
   const fotos = kit.fotos || [];
   const linkKit = `${window.location.origin}${window.location.pathname}?d=${new URLSearchParams(window.location.search).get("d") || "demo"}&kit=${kit.id}`;
   const mensagem = mostrarValores
@@ -118,9 +119,9 @@ function DetalheKit({ kit, mostrarValores, corDestaque, favoritado, onFavoritar,
       </div>
 
       <div className="max-w-md mx-auto px-4 pb-8">
-        <div className="relative aspect-square rounded-3xl overflow-hidden bg-slate-100 mt-4 mb-2">
+        <button onClick={() => setFotoAmpliada(true)} className="relative aspect-square rounded-3xl overflow-hidden bg-slate-100 mt-4 mb-2 w-full cursor-zoom-in">
           {fotos[indiceFoto] ? <img src={fotos[indiceFoto].imagem_url} className="w-full h-full object-cover" /> : <div className="w-full h-full flex items-center justify-center text-4xl">🎁</div>}
-        </div>
+        </button>
         {fotos.length > 1 && (
           <div className="flex gap-2 mb-4 overflow-x-auto">
             {fotos.map((f, i) => (
@@ -159,6 +160,13 @@ function DetalheKit({ kit, mostrarValores, corDestaque, favoritado, onFavoritar,
           </a>
         </div>
       </div>
+
+      {fotoAmpliada && fotos[indiceFoto] && (
+        <div className="fixed inset-0 z-[60] flex items-center justify-center p-4" style={{ background: "rgba(0,0,0,.92)" }} onClick={() => setFotoAmpliada(false)}>
+          <img src={fotos[indiceFoto].imagem_url} className="max-w-full max-h-full rounded-2xl object-contain" />
+          <button onClick={() => setFotoAmpliada(false)} className="absolute top-4 right-4 w-10 h-10 rounded-full flex items-center justify-center text-white text-xl cursor-pointer" style={{ background: "rgba(255,255,255,.15)" }}>✕</button>
+        </div>
+      )}
     </div>
   );
 }
