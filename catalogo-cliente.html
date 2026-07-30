@@ -76,27 +76,23 @@ function ChipsFiltro({ label, opcoes, valor, onChange, corDestaque }) {
   );
 }
 
-function CardKit({ kit, mostrarValores, corDestaque, favoritado, onFavoritar, onAbrir }) {
+function CardKit({ kit, mostrarValores, corDestaque, onAbrir }) {
   const foto = kit.fotos && kit.fotos[0];
   return (
-    <div className="rounded-2xl overflow-hidden bg-white border border-slate-100 shadow-sm anim-entrar">
-      <button onClick={() => onAbrir(kit)} className="block w-full text-left cursor-pointer">
-        <div className="relative aspect-square bg-slate-100">
-          {foto ? <img src={foto.imagem_url} className="w-full h-full object-cover" /> : <div className="w-full h-full flex items-center justify-center text-3xl">🎁</div>}
-          {kit.em_destaque && <span className="absolute top-2 left-2 text-[10px] font-bold px-2 py-0.5 rounded-full text-white" style={{ background: "#FFC93C", color: "#5c4200" }}>⭐ Destaque</span>}
-        </div>
-        <div className="p-3 pb-1">
-          <p className="font-bold text-sm truncate" style={{ color: AZUL }}>{kit.nome}</p>
-          {(kit.tipo_evento || kit.nivel) && <p className="text-[11px] font-semibold truncate mt-0.5" style={{ color: corDestaque }}>{[kit.tipo_evento, kit.nivel].filter(Boolean).join(" · ")}</p>}
-          {mostrarValores && kit.preco && <p className="text-sm font-bold mt-1" style={{ color: AZUL }}>{Number(kit.preco).toLocaleString("pt-BR", { style: "currency", currency: "BRL" })}</p>}
-        </div>
-      </button>
-      <div className="px-3 pb-3 pt-1">
-        <button onClick={() => onFavoritar(kit)} className="w-full py-1.5 rounded-lg text-xs font-bold cursor-pointer flex items-center justify-center gap-1" style={{ background: favoritado ? `${corDestaque}22` : "#F1F5F9", color: favoritado ? corDestaque : "#64748b" }}>
-          {favoritado ? "❤️ Curtido" : "🤍 Curtir"}
-        </button>
+    <button
+      onClick={() => onAbrir(kit)}
+      className="text-left w-full rounded-2xl overflow-hidden bg-white border border-slate-100 shadow-sm anim-entrar cursor-pointer transition-all duration-300 ease-out hover:-translate-y-1 hover:shadow-xl active:scale-[0.97] active:shadow-sm"
+    >
+      <div className="relative aspect-square bg-slate-100">
+        {foto ? <img src={foto.imagem_url} className="w-full h-full object-cover" /> : <div className="w-full h-full flex items-center justify-center text-3xl">🎁</div>}
+        {kit.em_destaque && <span className="absolute top-2 left-2 text-[10px] font-bold px-2 py-0.5 rounded-full text-white" style={{ background: "#FFC93C", color: "#5c4200" }}>⭐ Destaque</span>}
       </div>
-    </div>
+      <div className="p-3">
+        <p className="font-bold text-sm truncate" style={{ color: AZUL }}>{kit.nome}</p>
+        {(kit.tipo_evento || kit.nivel) && <p className="text-[11px] font-semibold truncate mt-0.5" style={{ color: corDestaque }}>{[kit.tipo_evento, kit.nivel].filter(Boolean).join(" · ")}</p>}
+        {mostrarValores && kit.preco && <p className="text-sm font-bold mt-1" style={{ color: AZUL }}>{Number(kit.preco).toLocaleString("pt-BR", { style: "currency", currency: "BRL" })}</p>}
+      </div>
+    </button>
   );
 }
 
@@ -269,8 +265,14 @@ function App() {
 
   return (
     <div className="min-h-screen pb-10">
-      {decoradora.catalogo_banner_url && (
-        <div className="w-full h-32 sm:h-44 bg-slate-100"><img src={decoradora.catalogo_banner_url} className="w-full h-full object-cover" /></div>
+      {decoradora.catalogo_banner_mobile_url && (
+        <div className="w-full h-40 bg-slate-100 sm:hidden"><img src={decoradora.catalogo_banner_mobile_url} className="w-full h-full object-cover" /></div>
+      )}
+      {(decoradora.catalogo_banner_url || decoradora.catalogo_banner_mobile_url) && (
+        <div className="w-full h-44 bg-slate-100 hidden sm:block"><img src={decoradora.catalogo_banner_url || decoradora.catalogo_banner_mobile_url} className="w-full h-full object-cover" /></div>
+      )}
+      {!decoradora.catalogo_banner_mobile_url && decoradora.catalogo_banner_url && (
+        <div className="w-full h-32 bg-slate-100 sm:hidden"><img src={decoradora.catalogo_banner_url} className="w-full h-full object-cover" /></div>
       )}
 
       <div className="max-w-2xl mx-auto px-4">
@@ -296,7 +298,7 @@ function App() {
           <div className="mt-4 mb-2">
             <p className="text-xs font-bold uppercase tracking-wide mb-2" style={{ color: corDestaque }}>⭐ Em destaque</p>
             <div className="grid grid-cols-2 gap-3">
-              {destaques.map((k) => <CardKit key={k.id} kit={k} mostrarValores={mostrarValores} corDestaque={corDestaque} favoritado={favoritos.some((f) => f.id === k.id)} onFavoritar={toggleFavorito} onAbrir={setKitAberto} />)}
+              {destaques.map((k) => <CardKit key={k.id} kit={k} mostrarValores={mostrarValores} corDestaque={corDestaque} onAbrir={setKitAberto} />)}
             </div>
           </div>
         )}
@@ -305,7 +307,7 @@ function App() {
           <div className="mt-5">
             {destaques.length > 0 && <p className="text-xs font-bold uppercase tracking-wide mb-2 text-slate-400">Todos os kits</p>}
             <div className="grid grid-cols-2 gap-3">
-              {restante.map((k) => <CardKit key={k.id} kit={k} mostrarValores={mostrarValores} corDestaque={corDestaque} favoritado={favoritos.some((f) => f.id === k.id)} onFavoritar={toggleFavorito} onAbrir={setKitAberto} />)}
+              {restante.map((k) => <CardKit key={k.id} kit={k} mostrarValores={mostrarValores} corDestaque={corDestaque} onAbrir={setKitAberto} />)}
             </div>
           </div>
         )}
