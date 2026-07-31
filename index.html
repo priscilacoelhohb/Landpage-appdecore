@@ -279,6 +279,17 @@
     .phone-frame{width:220px;}
     .phone-screen{height:420px;}
   }
+
+  /* Carrossel de fotos (Catálogo Inteligente com IA) */
+  .coverflow-photos{height:400px;}
+  .cf-photo{
+    width:230px;display:block;pointer-events:none;
+    filter:drop-shadow(0 20px 45px rgba(0,0,0,.5));
+  }
+  @media (max-width:380px){
+    .coverflow-photos{height:340px;}
+    .cf-photo{width:190px;}
+  }
 </style>
 <!-- Meta Pixel Code -->
 <script>
@@ -335,6 +346,71 @@ src="https://www.facebook.com/tr?id=1565446158304634&ev=PageView&noscript=1"
 </section>
 
 <!-- ============================================================
+     VÍDEO DEMO
+============================================================ -->
+<section class="relative px-6 py-20" style="background:var(--surface)">
+  <div class="max-w-4xl mx-auto text-center reveal">
+    <p class="section-eyebrow mb-3" style="color:var(--pink)">Veja funcionando</p>
+    <h2 class="display text-3xl sm:text-4xl font-bold mb-10">Veja o AppDecore em ação</h2>
+
+    <div class="video-frame glass rounded-3xl overflow-hidden relative">
+      <vturb-smartplayer id="vid-6a6c16dda57b617e851e25d4" style="display: block; margin: 0 auto; width: 100%; max-width: 400px;"><div class="vturb-player-placeholder" style="position: relative; width: 100%; padding: 177.77777777777777% 0 0; z-index: 0; background-color: black;"></div></vturb-smartplayer>
+      <script type="text/javascript"> var s=document.createElement("script"); s.src="https://scripts.converteai.net/be28a632-e8a1-4f5e-9674-b5bced476446/players/6a6c16dda57b617e851e25d4/v4/player.js", s.async=!0,document.head.appendChild(s); </script>
+    </div>
+
+    <a href="#precos" class="btn-cta inline-block text-white font-bold text-base px-8 py-4 rounded-2xl mt-10">Quero Testar Grátis por 7 Dias</a>
+  </div>
+</section>
+
+<!-- ============================================================
+     CATÁLOGO INTELIGENTE COM IA
+============================================================ -->
+<section class="relative px-6 py-24 overflow-hidden" style="background:var(--surface)">
+  <div class="aurora aurora-2" style="width:420px;height:420px;background:var(--purple);top:-100px;right:-60px;opacity:.45;"></div>
+
+  <div class="relative max-w-5xl mx-auto">
+    <div class="text-center mb-14 reveal">
+      <p class="section-eyebrow mb-3" style="color:var(--purple)">Novidade · Plano Premium</p>
+      <h2 class="display text-3xl sm:text-4xl font-bold mb-4">Catálogo Inteligente com IA</h2>
+      <p class="text-sm sm:text-base max-w-2xl mx-auto" style="color:var(--muted)">Você tem uma IA dentro do seu próprio catálogo. Troca a cor de um cilindro, troca o painel, remove um detalhe da foto — direto na configuração do kit, sem pagar Canva, Photoshop ou qualquer outra ferramenta de edição por fora.</p>
+    </div>
+
+    <div class="relative reveal" data-carousel>
+      <div class="coverflow coverflow-photos" data-coverflow-stage>
+        <div class="cf-slide">
+          <img class="cf-photo" src="catalogo-lista-kits.png" alt="Catálogo de kits com filtros por tipo de evento, público e nível" loading="lazy" />
+        </div>
+        <div class="cf-slide">
+          <img class="cf-photo" src="catalogo-ia-editor.png" alt="Tela do Catálogo Inteligente com IA, trocando a cor de uma peça do kit" loading="lazy" />
+        </div>
+      </div>
+
+      <button data-coverflow-prev aria-label="Imagem anterior" class="carousel-arrow left-1 sm:left-6">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>
+      </button>
+      <button data-coverflow-next aria-label="Próxima imagem" class="carousel-arrow right-1 sm:right-6">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
+      </button>
+
+      <div class="flex items-center justify-center gap-2 mt-8">
+        <button class="carousel-dot" data-i="0" aria-label="Ver catálogo de kits"></button>
+        <button class="carousel-dot" data-i="1" aria-label="Ver edição com IA"></button>
+      </div>
+    </div>
+
+    <div class="grid sm:grid-cols-3 gap-4 mt-14 max-w-3xl mx-auto">
+      <div class="glass rounded-2xl px-5 py-4 text-sm reveal reveal-1 flex items-center check-item">IA edita a foto do seu kit: cor, painel ou detalhe</div>
+      <div class="glass rounded-2xl px-5 py-4 text-sm reveal reveal-2 flex items-center check-item">Sem pagar ferramenta nenhuma de edição por fora</div>
+      <div class="glass rounded-2xl px-5 py-4 text-sm reveal reveal-3 flex items-center check-item">Cliente filtra por tipo de evento e escolhe sozinha</div>
+    </div>
+
+    <div class="text-center mt-12 reveal">
+      <a href="#precos" class="btn-cta inline-block text-white font-bold text-base px-8 py-4 rounded-2xl">Quero Testar Grátis por 7 Dias</a>
+    </div>
+  </div>
+</section>
+
+<!-- ============================================================
      COVERFLOW — TELAS DO APP
 ============================================================ -->
 <section class="relative px-6 py-24 overflow-hidden">
@@ -343,8 +419,8 @@ src="https://www.facebook.com/tr?id=1565446158304634&ev=PageView&noscript=1"
     <h2 class="display text-3xl sm:text-4xl font-bold">Simples de olhar. Fácil de usar.</h2>
   </div>
 
-  <div class="relative reveal">
-    <div id="coverflow" class="coverflow">
+  <div class="relative reveal" data-carousel>
+    <div class="coverflow" data-coverflow-stage>
 
       <!-- Tela 1: Início -->
       <div class="cf-slide">
@@ -414,10 +490,10 @@ src="https://www.facebook.com/tr?id=1565446158304634&ev=PageView&noscript=1"
 
     </div>
 
-    <button id="carouselPrev" aria-label="Tela anterior" class="carousel-arrow left-1 sm:left-6">
+    <button data-coverflow-prev aria-label="Tela anterior" class="carousel-arrow left-1 sm:left-6">
       <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>
     </button>
-    <button id="carouselNext" aria-label="Próxima tela" class="carousel-arrow right-1 sm:right-6">
+    <button data-coverflow-next aria-label="Próxima tela" class="carousel-arrow right-1 sm:right-6">
       <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
     </button>
 
@@ -426,23 +502,6 @@ src="https://www.facebook.com/tr?id=1565446158304634&ev=PageView&noscript=1"
       <button class="carousel-dot" data-i="1" aria-label="Ir pra tela Contrato"></button>
       <button class="carousel-dot" data-i="2" aria-label="Ir pra tela Financeiro"></button>
     </div>
-  </div>
-</section>
-
-<!-- ============================================================
-     VÍDEO DEMO
-============================================================ -->
-<section class="relative px-6 py-20" style="background:var(--surface)">
-  <div class="max-w-4xl mx-auto text-center reveal">
-    <p class="section-eyebrow mb-3" style="color:var(--pink)">Veja funcionando</p>
-    <h2 class="display text-3xl sm:text-4xl font-bold mb-10">Veja o AppDecore em ação</h2>
-
-    <div class="video-frame glass rounded-3xl overflow-hidden relative">
-      <vturb-smartplayer id="vid-6a639368031b3f35da8c194c" style="display: block; margin: 0 auto; width: 100%; max-width: 400px;"><div class="vturb-player-placeholder" style="position: relative; width: 100%; padding: 177.77777777777777% 0 0; z-index: 0; background-color: black;"></div></vturb-smartplayer>
-      <script type="text/javascript"> var s=document.createElement("script"); s.src="https://scripts.converteai.net/be28a632-e8a1-4f5e-9674-b5bced476446/players/6a639368031b3f35da8c194c/v4/player.js", s.async=!0,document.head.appendChild(s); </script>
-    </div>
-
-    <a href="#precos" class="btn-cta inline-block text-white font-bold text-base px-8 py-4 rounded-2xl mt-10">Quero Testar Grátis por 7 Dias</a>
   </div>
 </section>
 
@@ -716,14 +775,14 @@ src="https://www.facebook.com/tr?id=1565446158304634&ev=PageView&noscript=1"
   }, { threshold: 0.15 });
   reveals.forEach(function(el){ observer.observe(el); });
 
-  // Coverflow de telas do app
-  (function(){
-    var stage = document.getElementById('coverflow');
+  // Coverflow (reutilizado pro carrossel de telas do app e pro de fotos do catálogo IA)
+  function initCoverflow(root){
+    var stage = root.querySelector('[data-coverflow-stage]');
     if (!stage) return;
     var slides = stage.querySelectorAll('.cf-slide');
-    var dots = document.querySelectorAll('.carousel-dot');
-    var prevBtn = document.getElementById('carouselPrev');
-    var nextBtn = document.getElementById('carouselNext');
+    var dots = root.querySelectorAll('.carousel-dot');
+    var prevBtn = root.querySelector('[data-coverflow-prev]');
+    var nextBtn = root.querySelector('[data-coverflow-next]');
     var total = slides.length;
     var index = 0;
     var timer = null;
@@ -758,8 +817,8 @@ src="https://www.facebook.com/tr?id=1565446158304634&ev=PageView&noscript=1"
     function stopAuto(){ if (timer) clearInterval(timer); }
 
     dots.forEach(function(d){ d.addEventListener('click', function(){ goTo(parseInt(d.dataset.i, 10)); stopAuto(); startAuto(); }); });
-    nextBtn.addEventListener('click', function(){ next(); stopAuto(); startAuto(); });
-    prevBtn.addEventListener('click', function(){ prev(); stopAuto(); startAuto(); });
+    if (nextBtn) nextBtn.addEventListener('click', function(){ next(); stopAuto(); startAuto(); });
+    if (prevBtn) prevBtn.addEventListener('click', function(){ prev(); stopAuto(); startAuto(); });
     slides.forEach(function(slide, i){ slide.addEventListener('click', function(){ if (i !== index) { goTo(i); stopAuto(); startAuto(); } }); });
 
     var startX = 0;
@@ -770,13 +829,15 @@ src="https://www.facebook.com/tr?id=1565446158304634&ev=PageView&noscript=1"
       startAuto();
     }, { passive: true });
 
-    stage.closest('.relative').addEventListener('mouseenter', stopAuto);
-    stage.closest('.relative').addEventListener('mouseleave', startAuto);
+    root.addEventListener('mouseenter', stopAuto);
+    root.addEventListener('mouseleave', startAuto);
     window.addEventListener('resize', render);
 
     render();
     startAuto();
-  })();
+  }
+
+  document.querySelectorAll('[data-carousel]').forEach(initCoverflow);
 </script>
 
 </body>
