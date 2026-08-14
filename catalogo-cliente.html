@@ -199,7 +199,7 @@ function BarraFavoritos({ favoritos, corDestaque, whatsappContato, nomeLoja }) {
 ============================================================ */
 function App() {
   const params = new URLSearchParams(window.location.search);
-  const decoradoraId = params.get("d");
+  const decoradoraIdBruto = params.get("d"); // pode ser o UUID de sempre, ou o nome bonito (slug) que a decoradora escolheu
   const kitIdDireto = params.get("kit");
 
   const [carregando, setCarregando] = useState(true);
@@ -215,12 +215,15 @@ function App() {
 
   useEffect(() => {
     async function carregar() {
-      if (!decoradoraId) {
+      if (!decoradoraIdBruto) {
         setDecoradora({ nome_loja: "Studio Encanto (demonstração)", logo_data_url: null, whatsapp_contato: "5511999999999", catalogo_cor_destaque: "#EC1E79", catalogo_texto_boasvindas: "Bem-vinda ao nosso catálogo! Escolha seu kit dos sonhos 💕", catalogo_mostrar_valores: true });
         setKits(gerarKitsDemo());
         setCarregando(false);
         return;
       }
+      // Traduz o que veio na URL (nome bonito ou UUID de sempre) pro ID real da decoradora.
+      const { data: decoradoraId, error: erroResolver } = await sb.rpc("resolver_slug_catalogo", { p_valor: decoradoraIdBruto });
+      if (erroResolver || !decoradoraId) { setErro("Não achamos esse catálogo. Confira o link com quem te enviou."); setCarregando(false); return; }
       const { data: dec, error: erroDec } = await sb.from("catalogo_publico").select("*").eq("decoradora_id", decoradoraId).maybeSingle();
       if (erroDec || !dec) { setErro("Não achamos esse catálogo. Confira o link com quem te enviou."); setCarregando(false); return; }
       const { data: listaKits } = await sb.from("catalogo_kits").select("*").eq("decoradora_id", decoradoraId).eq("status", "publicado").order("em_destaque", { ascending: false });
@@ -237,7 +240,7 @@ function App() {
       }
     }
     carregar();
-  }, [decoradoraId]);
+  }, [decoradoraIdBruto]);
 
   const corDestaque = decoradora?.catalogo_cor_destaque || "#EC1E79";
   const mostrarValores = decoradora?.catalogo_mostrar_valores !== false;
