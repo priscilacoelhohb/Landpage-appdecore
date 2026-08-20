@@ -355,8 +355,206 @@ src="https://www.facebook.com/tr?id=1565446158304634&ev=PageView&noscript=1"
 </section>
 
 <!-- ============================================================
-     CATÁLOGO INTELIGENTE COM IA
+     DEPOIMENTOS — carrossel 3D (mensagens reais do grupo)
 ============================================================ -->
+<section class="relative px-6 py-24 overflow-hidden" style="background:var(--ink)">
+  <div class="aurora aurora-1" style="width:460px;height:460px;background:var(--pink);top:-120px;left:-100px;opacity:.35;"></div>
+  <div class="max-w-5xl mx-auto text-center reveal" style="position:relative;z-index:1;">
+    <p class="section-eyebrow mb-3" style="color:var(--pink)">Quem usa, recomenda</p>
+    <h2 class="display text-3xl sm:text-4xl font-bold mb-14">O que as decoradoras <span class="grad-text">estão dizendo</span></h2>
+  </div>
+
+  <div class="dep3d-wrap" style="position:relative;z-index:1;">
+    <div class="dep3d-track" id="dep3dTrack">
+      <div class="dep3d-card">
+        <div class="dep3d-shot">
+          <div class="dep3d-shot-bar"><span class="dep3d-wa-ic">
+            <svg viewBox="0 0 24 24" width="13" height="13" fill="#25D366"><path d="M12.04 2C6.58 2 2.13 6.45 2.13 11.91c0 1.75.46 3.45 1.32 4.95L2.05 22l5.29-1.39a9.9 9.9 0 0 0 4.7 1.2h.01c5.46 0 9.91-4.45 9.91-9.9C21.96 6.45 17.5 2 12.04 2Z"/></svg> WhatsApp</div>
+          <img src="depoimentos/dep-flavia.jpg" alt="Depoimento da Flávia sobre o AppDecore no WhatsApp" loading="lazy" />
+        </div>
+        <div class="dep3d-autor">
+          <div class="dep3d-avatar">FL</div>
+          <div><b>Flávia</b><span>M&amp;M Decoração</span></div>
+        </div>
+      </div>
+      <div class="dep3d-card">
+        <div class="dep3d-shot">
+          <div class="dep3d-shot-bar"><span class="dep3d-wa-ic">
+            <svg viewBox="0 0 24 24" width="13" height="13" fill="#25D366"><path d="M12.04 2C6.58 2 2.13 6.45 2.13 11.91c0 1.75.46 3.45 1.32 4.95L2.05 22l5.29-1.39a9.9 9.9 0 0 0 4.7 1.2h.01c5.46 0 9.91-4.45 9.91-9.9C21.96 6.45 17.5 2 12.04 2Z"/></svg> WhatsApp</div>
+          <img src="depoimentos/dep-adriane.jpg" alt="Depoimento da Adriane Collaço sobre o AppDecore no WhatsApp" loading="lazy" />
+        </div>
+        <div class="dep3d-autor">
+          <div class="dep3d-avatar">AC</div>
+          <div><b>Adriane Collaço</b><span>Decoradora AppDecore</span></div>
+        </div>
+      </div>
+      <div class="dep3d-card">
+        <div class="dep3d-shot">
+          <div class="dep3d-shot-bar"><span class="dep3d-wa-ic">
+            <svg viewBox="0 0 24 24" width="13" height="13" fill="#25D366"><path d="M12.04 2C6.58 2 2.13 6.45 2.13 11.91c0 1.75.46 3.45 1.32 4.95L2.05 22l5.29-1.39a9.9 9.9 0 0 0 4.7 1.2h.01c5.46 0 9.91-4.45 9.91-9.9C21.96 6.45 17.5 2 12.04 2Z"/></svg> WhatsApp</div>
+          <img src="depoimentos/dep-lojafestas.jpg" alt="Depoimento de uma decoradora sobre o AppDecore no WhatsApp" loading="lazy" />
+        </div>
+        <div class="dep3d-autor">
+          <div class="dep3d-avatar">LF</div>
+          <div><b>Loja de Festas</b><span>Decoradora AppDecore</span></div>
+        </div>
+      </div>
+      <div class="dep3d-card">
+        <div class="dep3d-shot">
+          <div class="dep3d-shot-bar"><span class="dep3d-wa-ic">
+            <svg viewBox="0 0 24 24" width="13" height="13" fill="#25D366"><path d="M12.04 2C6.58 2 2.13 6.45 2.13 11.91c0 1.75.46 3.45 1.32 4.95L2.05 22l5.29-1.39a9.9 9.9 0 0 0 4.7 1.2h.01c5.46 0 9.91-4.45 9.91-9.9C21.96 6.45 17.5 2 12.04 2Z"/></svg> WhatsApp</div>
+          <img src="depoimentos/dep-nathy.jpg" alt="Depoimento da Nathy Decor sobre o AppDecore no WhatsApp" loading="lazy" />
+        </div>
+        <div class="dep3d-avatar-linha">
+          <div class="dep3d-avatar">ND</div>
+          <div><b>Nathy Decor</b><span>Decoradora AppDecore</span></div>
+        </div>
+      </div>
+    </div>
+
+    <button class="dep3d-nav dep3d-prev" onclick="dep3dMover(-1)" aria-label="Depoimento anterior">‹</button>
+    <button class="dep3d-nav dep3d-next" onclick="dep3dMover(1)" aria-label="Próximo depoimento">›</button>
+  </div>
+
+  <div class="dep3d-dots" id="dep3dDots"></div>
+</section>
+
+<script>
+(function () {
+  const track = document.getElementById('dep3dTrack');
+  const dotsWrap = document.getElementById('dep3dDots');
+  if (!track) return;
+  const cards = Array.from(track.children);
+  let atual = 0;
+  let auto = null;
+
+  cards.forEach((_, i) => {
+    const dot = document.createElement('button');
+    dot.className = 'dep3d-dot';
+    dot.setAttribute('aria-label', 'Ir pro depoimento ' + (i + 1));
+    dot.onclick = () => { atual = i; render(); reiniciarAuto(); };
+    dotsWrap.appendChild(dot);
+  });
+  const dots = Array.from(dotsWrap.children);
+
+  function render() {
+    const total = cards.length;
+    cards.forEach((card, i) => {
+      let offset = i - atual;
+      if (offset > total / 2) offset -= total;
+      if (offset < -total / 2) offset += total;
+
+      const abs = Math.abs(offset);
+      let transform, opacity, zIndex, pointer;
+      if (abs === 0) {
+        transform = 'translateX(0) scale(1) rotateY(0deg)';
+        opacity = 1; zIndex = 3; pointer = 'auto';
+      } else if (abs === 1) {
+        transform = `translateX(${offset * 62}%) scale(.8) rotateY(${offset * -28}deg)`;
+        opacity = .55; zIndex = 2; pointer = 'none';
+      } else {
+        transform = `translateX(${offset * 62}%) scale(.62) rotateY(${offset * -28}deg)`;
+        opacity = 0; zIndex = 1; pointer = 'none';
+      }
+      card.style.transform = transform;
+      card.style.opacity = opacity;
+      card.style.zIndex = zIndex;
+      card.style.pointerEvents = pointer;
+    });
+    dots.forEach((d, i) => d.classList.toggle('is-active', i === atual));
+  }
+
+  window.dep3dMover = function (dir) {
+    atual = (atual + dir + cards.length) % cards.length;
+    render();
+    reiniciarAuto();
+  };
+
+  function reiniciarAuto() {
+    clearInterval(auto);
+    auto = setInterval(() => { atual = (atual + 1) % cards.length; render(); }, 5000);
+  }
+
+  // Arrasta no celular
+  let startX = 0, dragging = false;
+  track.addEventListener('touchstart', (e) => { startX = e.touches[0].clientX; dragging = true; }, { passive: true });
+  track.addEventListener('touchend', (e) => {
+    if (!dragging) return;
+    const dx = e.changedTouches[0].clientX - startX;
+    if (Math.abs(dx) > 40) dep3dMover(dx < 0 ? 1 : -1);
+    dragging = false;
+  }, { passive: true });
+
+  render();
+  reiniciarAuto();
+})();
+</script>
+
+<style>
+  .dep3d-wrap{
+    position:relative; max-width:960px; margin:0 auto; height:620px;
+    perspective:1200px;
+  }
+  .dep3d-track{ position:relative; width:100%; height:100%; }
+  .dep3d-card{
+    position:absolute; top:0; left:50%; width:min(84vw,320px);
+    margin-left:max(-42vw,-160px);
+    background:var(--surface); border:1px solid rgba(255,255,255,.08);
+    border-radius:22px; padding:16px 16px 20px;
+    box-shadow:0 24px 50px -18px rgba(0,0,0,.6);
+    transition:transform .5s cubic-bezier(.22,.68,0,1.01), opacity .5s ease;
+    transform-style:preserve-3d;
+  }
+  /* moldura do print de WhatsApp */
+  .dep3d-shot{
+    border-radius:16px; overflow:hidden; margin-bottom:16px;
+    border:1px solid rgba(255,255,255,.08);
+    box-shadow:0 10px 26px -10px rgba(0,0,0,.55);
+    background:#0b141a;
+  }
+  .dep3d-shot-bar{
+    display:flex; align-items:center; gap:6px;
+    background:#1F2C34; color:#E9EDEF; font-size:11px; font-weight:600;
+    padding:7px 12px;
+  }
+  .dep3d-wa-ic{ display:flex; align-items:center; }
+  .dep3d-shot img{ display:block; width:100%; height:auto; }
+  .dep3d-stars{ color:#F5B301; letter-spacing:2px; font-size:14px; margin-bottom:12px; }
+  .dep3d-texto{
+    color:var(--cream); font-size:.95rem; line-height:1.6; margin:0 0 20px;
+    min-height:96px;
+  }
+  .dep3d-autor{ display:flex; align-items:center; gap:12px; text-align:left; }
+  .dep3d-autor b{ display:block; color:#fff; font-size:.92rem; }
+  .dep3d-autor span{ color:var(--muted); font-size:.8rem; }
+  .dep3d-avatar{
+    flex-shrink:0; width:40px; height:40px; border-radius:999px;
+    background:linear-gradient(135deg,var(--pink),var(--purple));
+    color:#fff; font-weight:700; font-size:.85rem;
+    display:flex; align-items:center; justify-content:center;
+  }
+  .dep3d-avatar-linha{ display:flex; align-items:center; gap:12px; text-align:left; }
+  .dep3d-avatar-linha b{ display:block; color:#fff; font-size:.92rem; }
+  .dep3d-avatar-linha span{ color:var(--muted); font-size:.8rem; }
+
+  .dep3d-nav{
+    position:absolute; top:50%; transform:translateY(-50%);
+    width:42px; height:42px; border-radius:999px; border:1px solid rgba(255,255,255,.15);
+    background:rgba(255,255,255,.06); color:#fff; font-size:22px; line-height:1;
+    cursor:pointer; z-index:5; display:flex; align-items:center; justify-content:center;
+  }
+  .dep3d-nav:hover{ background:rgba(255,255,255,.14); }
+  .dep3d-prev{ left:0; }
+  .dep3d-next{ right:0; }
+  @media (max-width:640px){ .dep3d-nav{ display:none; } }
+
+  .dep3d-dots{ display:flex; justify-content:center; gap:8px; margin-top:28px; position:relative; z-index:1; }
+  .dep3d-dot{
+    width:8px; height:8px; border-radius:999px; border:none; padding:0;
+    background:rgba(255,255,255,.25); cursor:pointer; transition:background .2s, width .2s;
+  }
+  .dep3d-dot.is-active{ background:var(--pink); width:22px; border-radius:999px; }
+</style>
 <section class="relative px-6 py-24 overflow-hidden" style="background:var(--surface)">
   <div class="aurora aurora-2" style="width:420px;height:420px;background:var(--purple);top:-100px;right:-60px;opacity:.45;"></div>
 
