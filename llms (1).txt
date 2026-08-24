@@ -1,0 +1,26 @@
+# AppDecore
+
+> AppDecore é um sistema de gestão para empresas de decoração de festas que trabalham com Kit Pegue e Monte, no Brasil. Substitui o controle manual por WhatsApp, papel e planilhas por um painel único.
+
+## Para quem é
+
+Decoradoras e pequenas empresas de decoração de festas que alugam ou vendem kits "Pegue e Monte" (kits de decoração prontos que o cliente retira e monta), incluindo decoração de festas infantis, festas personalizadas e locação de decoração.
+
+## O que o produto faz
+
+- **Contrato digital**: geração de contrato de locação com assinatura digital pelo celular, sem papel.
+- **Estoque automático**: controle de materiais que desconta e devolve o estoque automaticamente a cada contrato.
+- **Agenda com lembretes**: calendário de retiradas e devoluções, com lembretes automáticos enviados por WhatsApp.
+- **Financeiro**: acompanhamento de valores recebidos, a receber, despesas e relatórios, sem uso de planilhas.
+- **Catálogo inteligente (plano Premium)**: vitrine dos kits com fotos reais e edição de fotos por Inteligência Artificial.
+- **Oportunidades de venda**: lembretes automáticos de aniversários de clientes e reengajamento de clientes antigos.
+
+## Preço
+
+Dois planos: Básico por R$ 29,90/mês (estoque de até 150 peças) e Premium por R$ 59,90/mês (estoque sem limite e catálogo com IA). Assinatura via Pix ou cartão, sem necessidade de cartão pra assinar via Pix. Cancelamento a qualquer momento, sem multa. Garantia de 7 dias com reembolso. Também é possível testar grátis por 7 dias antes de assinar. Detalhes completos em: https://appdecore.com.br/pricing.md
+
+## Links
+
+- Site: https://appdecore.com.br
+- Preços: https://appdecore.com.br/pricing.md
+- Começar teste grátis: https://painel.appdecore.com.br

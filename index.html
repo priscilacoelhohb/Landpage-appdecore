@@ -38,7 +38,7 @@
     "price": "39.90",
     "priceCurrency": "BRL",
     "priceValidUntil": "2027-12-31",
-    "description": "Assinatura mensal a partir de R$ 19,90 (Básico) ou R$ 59,90 (Premium), via Pix, com 7 dias de garantia."
+    "description": "Assinatura mensal a partir de R$ 29,90 (Básico) ou R$ 59,90 (Premium), via Pix, com 7 dias de garantia."
   },
   "publisher": {
     "@type": "Organization",
@@ -60,7 +60,7 @@
     {
       "@type": "Question",
       "name": "Quanto custa o AppDecore?",
-      "acceptedAnswer": { "@type": "Answer", "text": "R$ 19,90 por mês no plano Básico, ou R$ 59,90 no Premium (sem limite de peças no estoque e catálogo com IA). Os dois incluem contrato digital, agenda e financeiro completos." }
+      "acceptedAnswer": { "@type": "Answer", "text": "R$ 29,90 por mês no plano Básico, ou R$ 59,90 no Premium (sem limite de peças no estoque e catálogo com IA). Os dois incluem contrato digital, agenda e financeiro completos." }
     },
     {
       "@type": "Question",
@@ -447,13 +447,13 @@ src="https://www.facebook.com/tr?id=1565446158304634&ev=PageView&noscript=1"
       const abs = Math.abs(offset);
       let transform, opacity, zIndex, pointer;
       if (abs === 0) {
-        transform = 'translateX(0) scale(1) rotateY(0deg)';
+        transform = 'translateY(-50%) translateX(0) scale(1) rotateY(0deg)';
         opacity = 1; zIndex = 3; pointer = 'auto';
       } else if (abs === 1) {
-        transform = `translateX(${offset * 62}%) scale(.8) rotateY(${offset * -28}deg)`;
+        transform = `translateY(-50%) translateX(${offset * 62}%) scale(.8) rotateY(${offset * -28}deg)`;
         opacity = .55; zIndex = 2; pointer = 'none';
       } else {
-        transform = `translateX(${offset * 62}%) scale(.62) rotateY(${offset * -28}deg)`;
+        transform = `translateY(-50%) translateX(${offset * 62}%) scale(.62) rotateY(${offset * -28}deg)`;
         opacity = 0; zIndex = 1; pointer = 'none';
       }
       card.style.transform = transform;
@@ -497,7 +497,7 @@ src="https://www.facebook.com/tr?id=1565446158304634&ev=PageView&noscript=1"
   }
   .dep3d-track{ position:relative; width:100%; height:100%; }
   .dep3d-card{
-    position:absolute; top:0; left:50%; width:min(84vw,320px);
+    position:absolute; top:50%; left:50%; width:min(84vw,320px);
     margin-left:max(-42vw,-160px);
     background:var(--surface); border:1px solid rgba(255,255,255,.08);
     border-radius:22px; padding:16px 16px 20px;
@@ -853,8 +853,8 @@ src="https://www.facebook.com/tr?id=1565446158304634&ev=PageView&noscript=1"
       <!-- PLANO BÁSICO -->
       <div class="glass-card rounded-3xl p-8">
         <p class="text-xs font-bold uppercase tracking-wider mb-2" style="color:var(--pink)">Básico</p>
-        <p class="text-base mb-1" style="color:var(--muted)"><span style="text-decoration:line-through">R$ 59,90</span></p>
-        <p class="display text-5xl font-bold mb-1">R$ 19<span class="text-2xl">,90</span><span class="text-sm font-normal" style="color:var(--muted)">/mês</span></p>
+        <p class="text-base mb-1" style="color:var(--muted)"><span style="text-decoration:line-through">R$ 69,90</span></p>
+        <p class="display text-5xl font-bold mb-1">R$ 29<span class="text-2xl">,90</span><span class="text-sm font-normal" style="color:var(--muted)">/mês</span></p>
         <ul class="text-sm text-left space-y-3 mb-8" style="color:var(--cream)">
           <li class="flex items-center check-item">Contrato com assinatura digital</li>
           <li class="flex items-center check-item">Estoque automático (até 150 peças)</li>
@@ -901,7 +901,7 @@ src="https://www.facebook.com/tr?id=1565446158304634&ev=PageView&noscript=1"
       </details>
       <details class="glass rounded-2xl px-5 py-4">
         <summary class="font-semibold cursor-pointer text-sm sm:text-base" style="color:var(--cream)">Quanto custa o AppDecore?</summary>
-        <p class="text-sm mt-3" style="color:var(--muted)">R$ 19,90 por mês no plano Básico, ou R$ 59,90 no Premium (sem limite de peças no estoque e catálogo com IA). Os dois incluem contrato digital, agenda e financeiro completos.</p>
+        <p class="text-sm mt-3" style="color:var(--muted)">R$ 29,90 por mês no plano Básico, ou R$ 59,90 no Premium (sem limite de peças no estoque e catálogo com IA). Os dois incluem contrato digital, agenda e financeiro completos.</p>
       </details>
       <details class="glass rounded-2xl px-5 py-4">
         <summary class="font-semibold cursor-pointer text-sm sm:text-base" style="color:var(--cream)">O AppDecore funciona pelo celular?</summary>
