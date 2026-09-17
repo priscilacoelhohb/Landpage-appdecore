@@ -111,6 +111,10 @@ function CardCategoria({ categoria, onAbrir }) {
         ) : (
           <div className="w-full h-full" style={{ background: GRADIENTE_CATEGORIA }} />
         )}
+        {/* Máscara preta a 50% por cima da foto, pra sempre dar destaque ao
+            nome — aplica em qualquer categoria, inclusive as que a
+            decoradora cadastrar, automaticamente. */}
+        <div className="absolute inset-0" style={{ background: "rgba(0,0,0,.5)" }} />
         <div className="absolute inset-0 flex items-center justify-center p-3">
           <div className="px-3.5 py-2 rounded-xl text-center" style={{ background: GRADIENTE_FAIXA, boxShadow: "0 4px 16px rgba(0,0,0,.3)", border: "2px solid rgba(255,255,255,.6)" }}>
             <p className="fredoka font-bold text-white uppercase tracking-wide text-sm leading-tight">{categoria.label}</p>
