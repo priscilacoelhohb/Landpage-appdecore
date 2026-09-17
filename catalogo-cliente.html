@@ -126,11 +126,31 @@ function CardCategoria({ categoria, onAbrir }) {
   );
 }
 
-function TelaResumoCategoria({ categoria, corDestaque, onVerKits, onFechar }) {
-  // Mesmo esquema de fallback de foto do CardCategoria: capa custom > imagem padrão > foto de um kit.
-  const candidatos = [categoria.capaCustom, categoria.imagem, categoria.fotoReserva].filter(Boolean);
-  const [idx, setIdx] = useState(0);
-  const srcFinal = candidatos[idx] || null;
+function CardPacote({ pacote }) {
+  const [imagemFalhou, setImagemFalhou] = useState(false);
+  const temFoto = pacote.foto && !imagemFalhou;
+  const itens = (pacote.itens || "").split("\n").map((l) => l.trim()).filter(Boolean);
+  return (
+    <div className="rounded-2xl overflow-hidden border border-slate-100 shadow-sm mb-3">
+      <div className="flex">
+        <div className="w-28 h-28 shrink-0 bg-slate-100">
+          {temFoto ? <img src={pacote.foto} onError={() => setImagemFalhou(true)} className="w-full h-full object-cover" /> : <div className="w-full h-full flex items-center justify-center text-3xl">🎁</div>}
+        </div>
+        <div className="flex-1 min-w-0 p-3">
+          <p className="fredoka font-bold text-sm mb-1" style={{ color: AZUL }}>{pacote.nome}</p>
+          {itens.length > 0 && (
+            <ul className="space-y-0.5 mb-1">
+              {itens.map((item, i) => <li key={i} className="text-[11px] leading-tight" style={{ color: "#64748b" }}>{item}</li>)}
+            </ul>
+          )}
+          {pacote.valor && <p className="text-sm font-bold" style={{ color: AZUL }}>{pacote.valor}</p>}
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function ModalPacotes({ titulo, pacotes, onFechar }) {
   return (
     <div className="fixed inset-0 z-50 bg-white overflow-y-auto anim-entrar">
       <div className="sticky top-0 bg-white z-10 flex items-center px-4 py-3 border-b border-slate-100">
@@ -138,23 +158,9 @@ function TelaResumoCategoria({ categoria, corDestaque, onVerKits, onFechar }) {
           <svg viewBox="0 0 24 24" fill="none" stroke="#181A33" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="w-4 h-4"><path d="m15 18-6-6 6-6" /></svg>
         </button>
       </div>
-
       <div className="max-w-md mx-auto px-4 pb-8">
-        <div className="relative aspect-[4/3] rounded-3xl overflow-hidden bg-slate-100 mt-4 mb-4">
-          {srcFinal ? (
-            <img src={srcFinal} onError={() => setIdx((i) => i + 1)} className="w-full h-full object-cover" />
-          ) : (
-            <div className="w-full h-full" style={{ background: GRADIENTE_CATEGORIA }} />
-          )}
-        </div>
-
-        <h1 className="fredoka text-xl font-bold mb-1" style={{ color: AZUL }}>{categoria.label}</h1>
-        {categoria.valor && <p className="text-lg font-bold mb-3" style={{ color: corDestaque }}>{categoria.valor}</p>}
-        {categoria.descricao && <p className="text-sm mb-6 whitespace-pre-line" style={{ color: "#475569" }}>{categoria.descricao}</p>}
-
-        <button onClick={onVerKits} className="w-full text-center py-3.5 rounded-2xl font-bold text-sm text-white cursor-pointer" style={{ background: GRADIENTE_CATEGORIA }}>
-          Ver kits ({categoria.qtd})
-        </button>
+        <h1 className="fredoka text-xl font-bold mt-4 mb-4 text-center" style={{ color: AZUL }}>{titulo}</h1>
+        {pacotes.map((p) => <CardPacote key={p.id} pacote={p} />)}
       </div>
     </div>
   );
@@ -342,7 +348,7 @@ function App() {
   const [favoritos, setFavoritos] = useState([]);
   const [explicacaoAberta, setExplicacaoAberta] = useState(null); // true quando o card Pegue e Monte/Decoração é clicado
   const [tela, setTela] = useState("categorias"); // "categorias" | "kits"
-  const [categoriaResumo, setCategoriaResumo] = useState(null); // categoria mostrando o resuminho (foto+descrição+valor) antes da lista de kits
+  const [pacotesAbertos, setPacotesAbertos] = useState(null); // "pegue_monte" | "decoracao" | null
 
   useEffect(() => {
     async function carregar() {
@@ -376,19 +382,19 @@ function App() {
   const corDestaque = decoradora?.catalogo_cor_destaque || "#EC1E79";
   const mostrarValores = decoradora?.catalogo_mostrar_valores !== false;
   const whatsappContato = (decoradora?.whatsapp_contato || "").replace(/\D/g, "");
+  const pacotesPegueMonte = decoradora?.catalogo_pacotes_pegue_monte || [];
+  const pacotesDecoracao = decoradora?.catalogo_pacotes_decoracao || [];
 
   function comContagem(lista) {
     const capas = decoradora?.catalogo_capas_categorias || {};
     const nomes = decoradora?.catalogo_nomes_categorias || {};
     const ocultas = decoradora?.catalogo_categorias_ocultas || [];
-    const descricoes = decoradora?.catalogo_descricoes_categorias || {};
-    const valores = decoradora?.catalogo_valores_categorias || {};
     return lista
       .filter((c) => !ocultas.includes(c.chave))
       .map((c) => {
         const kitsDaCategoria = kits.filter(c.match);
         const fotoDeKit = kitsDaCategoria.find((k) => k.fotos && k.fotos[0]);
-        return { ...c, label: nomes[c.chave] || c.label, qtd: kitsDaCategoria.length, capaCustom: capas[c.chave] || null, fotoReserva: fotoDeKit ? fotoDeKit.fotos[0].imagem_url : null, descricao: descricoes[c.chave] || "", valor: valores[c.chave] || "" };
+        return { ...c, label: nomes[c.chave] || c.label, qtd: kitsDaCategoria.length, capaCustom: capas[c.chave] || null, fotoReserva: fotoDeKit ? fotoDeKit.fotos[0].imagem_url : null };
       })
       .filter((c) => c.qtd > 0);
   }
@@ -414,17 +420,6 @@ function App() {
   function abrirCategoria(categoria) {
     setCategoriaAtiva(categoria);
     setTela("kits");
-  }
-
-  // Clique no card: se a decoradora preencheu descrição ou valor pra essa
-  // categoria, mostra o resuminho primeiro (botão "Ver kits" chama
-  // abrirCategoria de verdade); senão vai direto pra lista, como antes.
-  function handleAbrirCategoria(categoria) {
-    if (categoria && (categoria.descricao || categoria.valor)) {
-      setCategoriaResumo(categoria);
-    } else {
-      abrirCategoria(categoria);
-    }
   }
 
   function buscarDireto(valor) {
@@ -477,11 +472,22 @@ function App() {
               <CardServico servico={EXPLICACAO_PEGUE_MONTE_DECORACAO} onAbrir={setExplicacaoAberta} />
             </div>
 
+            {(pacotesPegueMonte.length > 0 || pacotesDecoracao.length > 0) && (
+              <div className="grid grid-cols-2 gap-3 mb-5">
+                {pacotesPegueMonte.length > 0 && (
+                  <CardServico servico={{ label: "O que vem em cada Pegue e Monte" }} onAbrir={() => setPacotesAbertos("pegue_monte")} />
+                )}
+                {pacotesDecoracao.length > 0 && (
+                  <CardServico servico={{ label: "O que vem em cada Decoração" }} onAbrir={() => setPacotesAbertos("decoracao")} />
+                )}
+              </div>
+            )}
+
             {categorias.length > 0 && (
               <div className="mb-5">
                 <p className="text-xs font-bold uppercase tracking-wide mb-2" style={{ color: corDestaque }}>Escolha uma categoria</p>
                 <div className="grid grid-cols-2 gap-3">
-                  {categorias.map((c) => <CardCategoria key={c.chave} categoria={c} onAbrir={handleAbrirCategoria} />)}
+                  {categorias.map((c) => <CardCategoria key={c.chave} categoria={c} onAbrir={abrirCategoria} />)}
                 </div>
               </div>
             )}
@@ -490,7 +496,7 @@ function App() {
               <div className="mb-5">
                 <p className="text-xs font-bold uppercase tracking-wide mb-2 text-slate-400">Kits Pegue e Monte prontos</p>
                 <div className="grid grid-cols-2 gap-3">
-                  {faixas.map((c) => <CardCategoria key={c.chave} categoria={c} onAbrir={handleAbrirCategoria} />)}
+                  {faixas.map((c) => <CardCategoria key={c.chave} categoria={c} onAbrir={abrirCategoria} />)}
                 </div>
               </div>
             )}
@@ -546,14 +552,8 @@ function App() {
 
       {explicacaoAberta && <ModalExplicacaoServico servico={explicacaoAberta} onFechar={() => setExplicacaoAberta(null)} />}
 
-      {categoriaResumo && (
-        <TelaResumoCategoria
-          categoria={categoriaResumo}
-          corDestaque={corDestaque}
-          onVerKits={() => { abrirCategoria(categoriaResumo); setCategoriaResumo(null); }}
-          onFechar={() => setCategoriaResumo(null)}
-        />
-      )}
+      {pacotesAbertos === "pegue_monte" && <ModalPacotes titulo="Pegue e Monte" pacotes={pacotesPegueMonte} onFechar={() => setPacotesAbertos(null)} />}
+      {pacotesAbertos === "decoracao" && <ModalPacotes titulo="Decoração" pacotes={pacotesDecoracao} onFechar={() => setPacotesAbertos(null)} />}
 
       <BarraFavoritos favoritos={favoritos} corDestaque={corDestaque} whatsappContato={whatsappContato} nomeLoja={decoradora.nome_loja} />
     </div>
