@@ -395,13 +395,13 @@ function App() {
         const kitsDaCategoria = kits.filter(c.match);
         const fotoDeKit = kitsDaCategoria.find((k) => k.fotos && k.fotos[0]);
         return { ...c, label: nomes[c.chave] || c.label, qtd: kitsDaCategoria.length, capaCustom: capas[c.chave] || null, fotoReserva: fotoDeKit ? fotoDeKit.fotos[0].imagem_url : null };
-      })
-      .filter((c) => c.qtd > 0);
+      });
   }
 
   // Categorias por tema: as 6 fixas + as que a decoradora cadastrou a mais.
-  // Só entra na lista a categoria que tiver pelo menos 1 kit publicado —
-  // nunca mostra card vazio.
+  // Toda categoria cadastrada e visível (toglezinha em Configurações) entra
+  // aqui, tenha kit ou não — quem decide o que aparece é a decoradora lá no
+  // painel, não a quantidade de kits.
   const categoriasExtras = useMemo(() => (decoradora?.catalogo_categorias_extras || []).map(categoriaExtra).filter(Boolean), [decoradora]);
   const categorias = useMemo(() => comContagem([...CATEGORIAS_CATALOGO, ...categoriasExtras]), [kits, categoriasExtras]);
 
