@@ -177,12 +177,18 @@ function CardServico({ servico, onAbrir }) {
 }
 
 function ModalExplicacaoServico({ servico, onFechar }) {
+  const [imagemFalhou, setImagemFalhou] = useState(false);
+  const temFoto = servico.imagem && !imagemFalhou;
   return (
     <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center bg-black/50 p-0 sm:p-4" onClick={onFechar}>
-      <div className="bg-white rounded-t-3xl sm:rounded-3xl w-full sm:max-w-sm p-6" onClick={(e) => e.stopPropagation()}>
-        <div className="w-full rounded-2xl p-4 mb-4 text-center" style={{ background: GRADIENTE_CATEGORIA }}>
-          <p className="fredoka font-bold text-white uppercase tracking-wide">{servico.label}</p>
-        </div>
+      <div className="bg-white rounded-t-3xl sm:rounded-3xl w-full sm:max-w-sm p-6 max-h-[90vh] overflow-y-auto" onClick={(e) => e.stopPropagation()}>
+        {temFoto ? (
+          <img src={servico.imagem} onError={() => setImagemFalhou(true)} className="w-full rounded-2xl mb-4" />
+        ) : (
+          <div className="w-full rounded-2xl p-4 mb-4 text-center" style={{ background: GRADIENTE_CATEGORIA }}>
+            <p className="fredoka font-bold text-white uppercase tracking-wide">{servico.label}</p>
+          </div>
+        )}
         <p className="text-sm mb-5" style={{ color: AZUL }}>{servico.texto}</p>
         <button onClick={onFechar} className="w-full text-center py-2.5 rounded-2xl font-bold text-sm cursor-pointer" style={{ background: "#F1F5F9", color: "#334155" }}>Entendi</button>
       </div>
