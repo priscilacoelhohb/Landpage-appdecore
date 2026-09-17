@@ -268,12 +268,14 @@ const CATEGORIAS_CATALOGO = [
   { chave: "cha-revelacao", label: "Chá Revelação", imagem: "categorias/cha-revelacao.jpg", match: (k) => /revela[cç][aã]o/i.test(k.tipo_evento || "") },
 ];
 
-// Cria uma categoria a partir de um nome que a decoradora cadastrou como
-// "categoria extra" — compara com o Tipo de evento do kit, ignorando
-// maiúscula/minúscula e espaço nas pontas.
-function categoriaExtra(nome) {
-  const alvo = nome.trim().toLowerCase();
-  return { chave: "extra-" + alvo, label: nome.trim(), imagem: null, match: (k) => (k.tipo_evento || "").trim().toLowerCase() === alvo };
+// Cria uma categoria a partir de uma categoria extra que a decoradora
+// cadastrou ({id, nome}) — compara com o Tipo de evento do kit, ignorando
+// maiúscula/minúscula e espaço nas pontas. O id é fixo (não muda se ela
+// renomear depois), é o que mantém a foto vinculada certa.
+function categoriaExtra(extra) {
+  if (!extra || !extra.nome || !extra.nome.trim()) return null;
+  const alvo = extra.nome.trim().toLowerCase();
+  return { chave: extra.id, label: extra.nome.trim(), imagem: null, match: (k) => (k.tipo_evento || "").trim().toLowerCase() === alvo };
 }
 
 // As 3 faixas fixas de Pegue e Monte — separadas do "Nível" livre de cada
@@ -306,7 +308,7 @@ function App() {
   useEffect(() => {
     async function carregar() {
       if (!decoradoraIdBruto) {
-        setDecoradora({ nome_loja: "Studio Encanto (demonstração)", logo_data_url: null, whatsapp_contato: "5511999999999", catalogo_cor_destaque: "#EC1E79", catalogo_texto_boasvindas: "Bem-vinda ao nosso catálogo! Escolha seu kit dos sonhos 💕", catalogo_mostrar_valores: true, catalogo_categorias_extras: ["Casamento"] });
+        setDecoradora({ nome_loja: "Studio Encanto (demonstração)", logo_data_url: null, whatsapp_contato: "5511999999999", catalogo_cor_destaque: "#EC1E79", catalogo_texto_boasvindas: "Bem-vinda ao nosso catálogo! Escolha seu kit dos sonhos 💕", catalogo_mostrar_valores: true, catalogo_categorias_extras: [{ id: "extra-demo-casamento", nome: "Casamento" }] });
         setKits(gerarKitsDemo());
         setCarregando(false);
         return;
@@ -338,11 +340,12 @@ function App() {
 
   function comContagem(lista) {
     const capas = decoradora?.catalogo_capas_categorias || {};
+    const nomes = decoradora?.catalogo_nomes_categorias || {};
     return lista
       .map((c) => {
         const kitsDaCategoria = kits.filter(c.match);
         const fotoDeKit = kitsDaCategoria.find((k) => k.fotos && k.fotos[0]);
-        return { ...c, qtd: kitsDaCategoria.length, capaCustom: capas[c.chave] || null, fotoReserva: fotoDeKit ? fotoDeKit.fotos[0].imagem_url : null };
+        return { ...c, label: nomes[c.chave] || c.label, qtd: kitsDaCategoria.length, capaCustom: capas[c.chave] || null, fotoReserva: fotoDeKit ? fotoDeKit.fotos[0].imagem_url : null };
       })
       .filter((c) => c.qtd > 0);
   }
@@ -350,7 +353,7 @@ function App() {
   // Categorias por tema: as 6 fixas + as que a decoradora cadastrou a mais.
   // Só entra na lista a categoria que tiver pelo menos 1 kit publicado —
   // nunca mostra card vazio.
-  const categoriasExtras = useMemo(() => (decoradora?.catalogo_categorias_extras || []).map(categoriaExtra), [decoradora]);
+  const categoriasExtras = useMemo(() => (decoradora?.catalogo_categorias_extras || []).map(categoriaExtra).filter(Boolean), [decoradora]);
   const categorias = useMemo(() => comContagem([...CATEGORIAS_CATALOGO, ...categoriasExtras]), [kits, categoriasExtras]);
 
   // Faixas de Pegue e Monte (Básico/Prata/Ouro) — dimensão separada, por preço.
