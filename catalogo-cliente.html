@@ -85,6 +85,7 @@ function CardKit({ kit, mostrarValores, corDestaque, onAbrir }) {
 }
 
 const GRADIENTE_CATEGORIA = "linear-gradient(135deg, #8B5CF6, #2563EB)";
+const GRADIENTE_FAIXA = "linear-gradient(135deg, rgba(167,139,250,.82), rgba(37,99,235,.82))";
 
 function CardCategoria({ categoria, onAbrir }) {
   // Ordem de prioridade da foto de fundo: capa que a decoradora subiu >
@@ -105,7 +106,7 @@ function CardCategoria({ categoria, onAbrir }) {
           <div className="w-full h-full" style={{ background: GRADIENTE_CATEGORIA }} />
         )}
         <div className="absolute inset-0 flex items-center justify-center p-3">
-          <div className="px-3.5 py-2 rounded-xl text-center" style={{ background: GRADIENTE_CATEGORIA, boxShadow: "0 4px 16px rgba(0,0,0,.3)", border: "2px solid rgba(255,255,255,.6)" }}>
+          <div className="px-3.5 py-2 rounded-xl text-center" style={{ background: GRADIENTE_FAIXA, boxShadow: "0 4px 16px rgba(0,0,0,.3)", border: "2px solid rgba(255,255,255,.6)" }}>
             <p className="fredoka font-bold text-white uppercase tracking-wide text-sm leading-tight">{categoria.label}</p>
           </div>
         </div>
