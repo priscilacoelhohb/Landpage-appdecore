@@ -87,6 +87,12 @@ function CardKit({ kit, mostrarValores, corDestaque, onAbrir }) {
 const GRADIENTE_CATEGORIA = "linear-gradient(135deg, #8B5CF6, #2563EB)";
 const GRADIENTE_FAIXA = "linear-gradient(135deg, rgba(167,139,250,.82), rgba(37,99,235,.82))";
 
+// Texto de exemplo — troca pelo definitivo assim que tiver a referência.
+const EXPLICACAO_SERVICOS = [
+  { chave: "pegue_monte", label: "Pegue e Monte", texto: "Você aluga as peças da decoração e monta na sua casa, no seu tempo. É a opção mais em conta, ideal pra quem curte colocar a mão na massa. A decoradora só entrega e depois retira as peças combinadas." },
+  { chave: "decoracao", label: "Decoração", texto: "A decoradora vai até o local da festa e monta tudo pra você, prontinho no horário combinado. Você não precisa se preocupar com nada — é só chegar e aproveitar a festa." },
+];
+
 function CardCategoria({ categoria, onAbrir }) {
   // Ordem de prioridade da foto de fundo: capa que a decoradora subiu >
   // imagem padrão da categoria (se o arquivo existir) > foto de um kit
@@ -112,6 +118,34 @@ function CardCategoria({ categoria, onAbrir }) {
         </div>
       </div>
     </button>
+  );
+}
+
+function CardServico({ servico, onAbrir }) {
+  return (
+    <button
+      onClick={() => onAbrir(servico)}
+      className="text-left w-full rounded-2xl overflow-hidden shadow-sm anim-entrar cursor-pointer transition-all duration-300 ease-out hover:-translate-y-1 hover:shadow-xl active:scale-[0.97] active:shadow-sm"
+    >
+      <div className="relative flex items-center justify-center p-4" style={{ aspectRatio: "16 / 10", background: GRADIENTE_CATEGORIA }}>
+        <p className="fredoka font-bold text-white uppercase tracking-wide text-sm text-center leading-tight">{servico.label}</p>
+        <span className="absolute bottom-2 right-2.5 text-white/80 text-[10px] font-bold">O que é isso? ⓘ</span>
+      </div>
+    </button>
+  );
+}
+
+function ModalExplicacaoServico({ servico, onFechar }) {
+  return (
+    <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center bg-black/50 p-0 sm:p-4" onClick={onFechar}>
+      <div className="bg-white rounded-t-3xl sm:rounded-3xl w-full sm:max-w-sm p-6" onClick={(e) => e.stopPropagation()}>
+        <div className="w-full rounded-2xl p-4 mb-4 text-center" style={{ background: GRADIENTE_CATEGORIA }}>
+          <p className="fredoka font-bold text-white uppercase tracking-wide">{servico.label}</p>
+        </div>
+        <p className="text-sm mb-5" style={{ color: AZUL }}>{servico.texto}</p>
+        <button onClick={onFechar} className="w-full text-center py-2.5 rounded-2xl font-bold text-sm cursor-pointer" style={{ background: "#F1F5F9", color: "#334155" }}>Entendi</button>
+      </div>
+    </div>
   );
 }
 
@@ -260,6 +294,7 @@ function App() {
   const [categoriaAtiva, setCategoriaAtiva] = useState(null); // item de CATEGORIAS_CATALOGO, ou null = "todos os kits"
   const [kitAberto, setKitAberto] = useState(null);
   const [favoritos, setFavoritos] = useState([]);
+  const [explicacaoAberta, setExplicacaoAberta] = useState(null); // item de EXPLICACAO_SERVICOS, ou null
   const [tela, setTela] = useState("categorias"); // "categorias" | "kits"
 
   useEffect(() => {
@@ -375,6 +410,13 @@ function App() {
 
         {tela === "categorias" ? (
           <div>
+            <div className="mb-5">
+              <p className="text-xs font-bold uppercase tracking-wide mb-2 text-slate-400">Pegue e Monte ou Decoração? Qual a diferença?</p>
+              <div className="grid grid-cols-2 gap-3">
+                {EXPLICACAO_SERVICOS.map((s) => <CardServico key={s.chave} servico={s} onAbrir={setExplicacaoAberta} />)}
+              </div>
+            </div>
+
             {categorias.length > 0 && (
               <div className="mb-5">
                 <p className="text-xs font-bold uppercase tracking-wide mb-2" style={{ color: corDestaque }}>Escolha uma categoria</p>
@@ -441,6 +483,8 @@ function App() {
           nomeLoja={decoradora.nome_loja}
         />
       )}
+
+      {explicacaoAberta && <ModalExplicacaoServico servico={explicacaoAberta} onFechar={() => setExplicacaoAberta(null)} />}
 
       <BarraFavoritos favoritos={favoritos} corDestaque={corDestaque} whatsappContato={whatsappContato} nomeLoja={decoradora.nome_loja} />
     </div>
