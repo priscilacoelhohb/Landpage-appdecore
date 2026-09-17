@@ -126,6 +126,40 @@ function CardCategoria({ categoria, onAbrir }) {
   );
 }
 
+function TelaResumoCategoria({ categoria, corDestaque, onVerKits, onFechar }) {
+  // Mesmo esquema de fallback de foto do CardCategoria: capa custom > imagem padrão > foto de um kit.
+  const candidatos = [categoria.capaCustom, categoria.imagem, categoria.fotoReserva].filter(Boolean);
+  const [idx, setIdx] = useState(0);
+  const srcFinal = candidatos[idx] || null;
+  return (
+    <div className="fixed inset-0 z-50 bg-white overflow-y-auto anim-entrar">
+      <div className="sticky top-0 bg-white z-10 flex items-center px-4 py-3 border-b border-slate-100">
+        <button onClick={onFechar} className="w-9 h-9 rounded-full flex items-center justify-center cursor-pointer" style={{ background: "#F1F5F9" }}>
+          <svg viewBox="0 0 24 24" fill="none" stroke="#181A33" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="w-4 h-4"><path d="m15 18-6-6 6-6" /></svg>
+        </button>
+      </div>
+
+      <div className="max-w-md mx-auto px-4 pb-8">
+        <div className="relative aspect-[4/3] rounded-3xl overflow-hidden bg-slate-100 mt-4 mb-4">
+          {srcFinal ? (
+            <img src={srcFinal} onError={() => setIdx((i) => i + 1)} className="w-full h-full object-cover" />
+          ) : (
+            <div className="w-full h-full" style={{ background: GRADIENTE_CATEGORIA }} />
+          )}
+        </div>
+
+        <h1 className="fredoka text-xl font-bold mb-1" style={{ color: AZUL }}>{categoria.label}</h1>
+        {categoria.valor && <p className="text-lg font-bold mb-3" style={{ color: corDestaque }}>{categoria.valor}</p>}
+        {categoria.descricao && <p className="text-sm mb-6 whitespace-pre-line" style={{ color: "#475569" }}>{categoria.descricao}</p>}
+
+        <button onClick={onVerKits} className="w-full text-center py-3.5 rounded-2xl font-bold text-sm text-white cursor-pointer" style={{ background: GRADIENTE_CATEGORIA }}>
+          Ver kits ({categoria.qtd})
+        </button>
+      </div>
+    </div>
+  );
+}
+
 function CardServico({ servico, onAbrir }) {
   const [imagemFalhou, setImagemFalhou] = useState(false);
   const temFoto = servico.imagem && !imagemFalhou;
@@ -305,6 +339,7 @@ function App() {
   const [favoritos, setFavoritos] = useState([]);
   const [explicacaoAberta, setExplicacaoAberta] = useState(null); // true quando o card Pegue e Monte/Decoração é clicado
   const [tela, setTela] = useState("categorias"); // "categorias" | "kits"
+  const [categoriaResumo, setCategoriaResumo] = useState(null); // categoria mostrando o resuminho (foto+descrição+valor) antes da lista de kits
 
   useEffect(() => {
     async function carregar() {
@@ -343,12 +378,14 @@ function App() {
     const capas = decoradora?.catalogo_capas_categorias || {};
     const nomes = decoradora?.catalogo_nomes_categorias || {};
     const ocultas = decoradora?.catalogo_categorias_ocultas || [];
+    const descricoes = decoradora?.catalogo_descricoes_categorias || {};
+    const valores = decoradora?.catalogo_valores_categorias || {};
     return lista
       .filter((c) => !ocultas.includes(c.chave))
       .map((c) => {
         const kitsDaCategoria = kits.filter(c.match);
         const fotoDeKit = kitsDaCategoria.find((k) => k.fotos && k.fotos[0]);
-        return { ...c, label: nomes[c.chave] || c.label, qtd: kitsDaCategoria.length, capaCustom: capas[c.chave] || null, fotoReserva: fotoDeKit ? fotoDeKit.fotos[0].imagem_url : null };
+        return { ...c, label: nomes[c.chave] || c.label, qtd: kitsDaCategoria.length, capaCustom: capas[c.chave] || null, fotoReserva: fotoDeKit ? fotoDeKit.fotos[0].imagem_url : null, descricao: descricoes[c.chave] || "", valor: valores[c.chave] || "" };
       })
       .filter((c) => c.qtd > 0);
   }
@@ -374,6 +411,17 @@ function App() {
   function abrirCategoria(categoria) {
     setCategoriaAtiva(categoria);
     setTela("kits");
+  }
+
+  // Clique no card: se a decoradora preencheu descrição ou valor pra essa
+  // categoria, mostra o resuminho primeiro (botão "Ver kits" chama
+  // abrirCategoria de verdade); senão vai direto pra lista, como antes.
+  function handleAbrirCategoria(categoria) {
+    if (categoria && (categoria.descricao || categoria.valor)) {
+      setCategoriaResumo(categoria);
+    } else {
+      abrirCategoria(categoria);
+    }
   }
 
   function buscarDireto(valor) {
@@ -430,7 +478,7 @@ function App() {
               <div className="mb-5">
                 <p className="text-xs font-bold uppercase tracking-wide mb-2" style={{ color: corDestaque }}>Escolha uma categoria</p>
                 <div className="grid grid-cols-2 gap-3">
-                  {categorias.map((c) => <CardCategoria key={c.chave} categoria={c} onAbrir={abrirCategoria} />)}
+                  {categorias.map((c) => <CardCategoria key={c.chave} categoria={c} onAbrir={handleAbrirCategoria} />)}
                 </div>
               </div>
             )}
@@ -439,7 +487,7 @@ function App() {
               <div className="mb-5">
                 <p className="text-xs font-bold uppercase tracking-wide mb-2 text-slate-400">Kits Pegue e Monte prontos</p>
                 <div className="grid grid-cols-2 gap-3">
-                  {faixas.map((c) => <CardCategoria key={c.chave} categoria={c} onAbrir={abrirCategoria} />)}
+                  {faixas.map((c) => <CardCategoria key={c.chave} categoria={c} onAbrir={handleAbrirCategoria} />)}
                 </div>
               </div>
             )}
@@ -494,6 +542,15 @@ function App() {
       )}
 
       {explicacaoAberta && <ModalExplicacaoServico servico={explicacaoAberta} onFechar={() => setExplicacaoAberta(null)} />}
+
+      {categoriaResumo && (
+        <TelaResumoCategoria
+          categoria={categoriaResumo}
+          corDestaque={corDestaque}
+          onVerKits={() => { abrirCategoria(categoriaResumo); setCategoriaResumo(null); }}
+          onFechar={() => setCategoriaResumo(null)}
+        />
+      )}
 
       <BarraFavoritos favoritos={favoritos} corDestaque={corDestaque} whatsappContato={whatsappContato} nomeLoja={decoradora.nome_loja} />
     </div>
