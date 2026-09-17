@@ -44,8 +44,8 @@ function fotoDemo(texto, cor) {
 }
 function gerarKitsDemo() {
   let idc = 0;
-  const kit = (nome, tipo_evento, publico, nivel, cor, preco, destaque) => ({
-    id: `demo-${idc++}`, nome, tipo_evento, publico, nivel, preco, em_destaque: !!destaque,
+  const kit = (nome, tipo_evento, publico, nivel, cor, preco, destaque, faixaPM) => ({
+    id: `demo-${idc++}`, nome, tipo_evento, publico, nivel, preco, em_destaque: !!destaque, faixa_pegue_monte: faixaPM || null,
     itens_inclusos: ["Mesa cilindro", "Painel redondo", "Boleira"],
     fotos: [{ id: "f" + idc, imagem_url: fotoDemo(nome, cor) }],
   });
@@ -55,6 +55,8 @@ function gerarKitsDemo() {
     kit("Kit Prata Safari", "Mesversário", "Unissex", "Prata", "#8B5CF6", 180, false),
     kit("Kit Luxo 15 Anos", "15 Anos", "Mulher", "Luxo", "#FFC93C", 890, false),
     kit("Kit Minimalista Chá de Bebê", "Chá de Bebê/Fralda", "Unissex", "Minimalista", "#34D399", 150, false),
+    kit("Kit Pegue e Monte Básico", "Aniversário Infantil", "Unissex", "Básico", "#F97316", 90, false, "basico"),
+    kit("Kit Casamento Boho", "Casamento", "Unissex", "Padrão", "#0EA5E9", 600, false),
   ];
 }
 
@@ -222,6 +224,22 @@ const CATEGORIAS_CATALOGO = [
   { chave: "cha-revelacao", label: "Chá Revelação", imagem: "categorias/cha-revelacao.jpg", match: (k) => /revela[cç][aã]o/i.test(k.tipo_evento || "") },
 ];
 
+// Cria uma categoria a partir de um nome que a decoradora cadastrou como
+// "categoria extra" — compara com o Tipo de evento do kit, ignorando
+// maiúscula/minúscula e espaço nas pontas.
+function categoriaExtra(nome) {
+  const alvo = nome.trim().toLowerCase();
+  return { chave: "extra-" + alvo, label: nome.trim(), imagem: null, match: (k) => (k.tipo_evento || "").trim().toLowerCase() === alvo };
+}
+
+// As 3 faixas fixas de Pegue e Monte — separadas do "Nível" livre de cada
+// decoradora, pra dar uma navegação por preço padronizada.
+const FAIXAS_PEGUE_MONTE = [
+  { chave: "pm-basico", label: "Kit Básico", imagem: "categorias/pm-basico.jpg", match: (k) => k.faixa_pegue_monte === "basico" },
+  { chave: "pm-prata", label: "Kit Prata", imagem: "categorias/pm-prata.jpg", match: (k) => k.faixa_pegue_monte === "prata" },
+  { chave: "pm-ouro", label: "Kit Ouro", imagem: "categorias/pm-ouro.jpg", match: (k) => k.faixa_pegue_monte === "ouro" },
+];
+
 /* ============================================================
    APP PRINCIPAL
 ============================================================ */
@@ -243,7 +261,7 @@ function App() {
   useEffect(() => {
     async function carregar() {
       if (!decoradoraIdBruto) {
-        setDecoradora({ nome_loja: "Studio Encanto (demonstração)", logo_data_url: null, whatsapp_contato: "5511999999999", catalogo_cor_destaque: "#EC1E79", catalogo_texto_boasvindas: "Bem-vinda ao nosso catálogo! Escolha seu kit dos sonhos 💕", catalogo_mostrar_valores: true });
+        setDecoradora({ nome_loja: "Studio Encanto (demonstração)", logo_data_url: null, whatsapp_contato: "5511999999999", catalogo_cor_destaque: "#EC1E79", catalogo_texto_boasvindas: "Bem-vinda ao nosso catálogo! Escolha seu kit dos sonhos 💕", catalogo_mostrar_valores: true, catalogo_categorias_extras: ["Casamento"] });
         setKits(gerarKitsDemo());
         setCarregando(false);
         return;
@@ -273,22 +291,29 @@ function App() {
   const mostrarValores = decoradora?.catalogo_mostrar_valores !== false;
   const whatsappContato = (decoradora?.whatsapp_contato || "").replace(/\D/g, "");
 
-  // Só entra na lista de cards a categoria que tiver pelo menos 1 kit
-  // publicado — nunca mostra card vazio.
-  const categorias = useMemo(() => {
-    return CATEGORIAS_CATALOGO
+  function comContagem(lista) {
+    return lista
       .map((c) => {
         const kitsDaCategoria = kits.filter(c.match);
         const fotoDeKit = kitsDaCategoria.find((k) => k.fotos && k.fotos[0]);
         return { ...c, qtd: kitsDaCategoria.length, fotoReserva: fotoDeKit ? fotoDeKit.fotos[0].imagem_url : null };
       })
       .filter((c) => c.qtd > 0);
-  }, [kits]);
+  }
+
+  // Categorias por tema: as 6 fixas + as que a decoradora cadastrou a mais.
+  // Só entra na lista a categoria que tiver pelo menos 1 kit publicado —
+  // nunca mostra card vazio.
+  const categoriasExtras = useMemo(() => (decoradora?.catalogo_categorias_extras || []).map(categoriaExtra), [decoradora]);
+  const categorias = useMemo(() => comContagem([...CATEGORIAS_CATALOGO, ...categoriasExtras]), [kits, categoriasExtras]);
+
+  // Faixas de Pegue e Monte (Básico/Prata/Ouro) — dimensão separada, por preço.
+  const faixas = useMemo(() => comContagem(FAIXAS_PEGUE_MONTE), [kits]);
 
   // Só vale a pena mostrar a tela de categorias se tiver pelo menos uma
-  // categoria reconhecida e kits suficientes pra fazer diferença (senão é
-  // só um clique extra sem necessidade nenhuma).
-  const usaTelaCategorias = categorias.length > 0 && kits.length > 4;
+  // categoria ou faixa reconhecida, e kits suficientes pra fazer diferença
+  // (senão é só um clique extra sem necessidade nenhuma).
+  const usaTelaCategorias = (categorias.length > 0 || faixas.length > 0) && kits.length > 4;
 
   useEffect(() => {
     if (!carregando && !usaTelaCategorias) setTela("kits");
@@ -345,11 +370,27 @@ function App() {
 
         {tela === "categorias" ? (
           <div>
-            <p className="text-xs font-bold uppercase tracking-wide mb-2" style={{ color: corDestaque }}>Escolha uma categoria</p>
-            <div className="grid grid-cols-2 gap-3">
-              {categorias.map((c) => <CardCategoria key={c.chave} categoria={c} corDestaque={corDestaque} onAbrir={abrirCategoria} />)}
-              <CardCategoria categoria={{ label: "Ver todos os kits", qtd: kits.length, imagem: null, fotoReserva: null }} corDestaque={corDestaque} onAbrir={() => abrirCategoria(null)} />
-            </div>
+            {categorias.length > 0 && (
+              <div className="mb-5">
+                <p className="text-xs font-bold uppercase tracking-wide mb-2" style={{ color: corDestaque }}>Escolha uma categoria</p>
+                <div className="grid grid-cols-2 gap-3">
+                  {categorias.map((c) => <CardCategoria key={c.chave} categoria={c} corDestaque={corDestaque} onAbrir={abrirCategoria} />)}
+                </div>
+              </div>
+            )}
+
+            {faixas.length > 0 && (
+              <div className="mb-5">
+                <p className="text-xs font-bold uppercase tracking-wide mb-2 text-slate-400">Kits Pegue e Monte prontos</p>
+                <div className="grid grid-cols-2 gap-3">
+                  {faixas.map((c) => <CardCategoria key={c.chave} categoria={c} corDestaque={corDestaque} onAbrir={abrirCategoria} />)}
+                </div>
+              </div>
+            )}
+
+            <button onClick={() => abrirCategoria(null)} className="w-full text-center py-3 rounded-2xl font-bold text-sm cursor-pointer" style={{ background: "#F1F5F9", color: "#334155" }}>
+              Ver todos os kits ({kits.length})
+            </button>
           </div>
         ) : (
         <div>
