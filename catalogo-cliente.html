@@ -87,11 +87,12 @@ function CardKit({ kit, mostrarValores, corDestaque, onAbrir }) {
 const GRADIENTE_CATEGORIA = "linear-gradient(135deg, #8B5CF6, #2563EB)";
 const GRADIENTE_FAIXA = "linear-gradient(135deg, rgba(167,139,250,.82), rgba(37,99,235,.82))";
 
-// Texto de exemplo — troca pelo definitivo assim que tiver a referência.
-const EXPLICACAO_SERVICOS = [
-  { chave: "pegue_monte", label: "Pegue e Monte", imagem: "categorias/pegue-monte.jpg", texto: "Você aluga as peças da decoração e monta na sua casa, no seu tempo. É a opção mais em conta, ideal pra quem curte colocar a mão na massa. A decoradora só entrega e depois retira as peças combinadas." },
-  { chave: "decoracao", label: "Decoração", imagem: "categorias/decoracao.jpg", texto: "A decoradora vai até o local da festa e monta tudo pra você, prontinho no horário combinado. Você não precisa se preocupar com nada — é só chegar e aproveitar a festa." },
-];
+// Texto de exemplo — troca pelo definitivo (e pela foto) assim que tiver a referência.
+const EXPLICACAO_PEGUE_MONTE_DECORACAO = {
+  label: "Pegue e Monte ou Decoração? Veja a diferença",
+  imagem: "categorias/pegue-monte-decoracao.jpg",
+  texto: "No Pegue e Monte, você aluga as peças e monta a decoração na sua casa, no seu tempo — é a opção mais em conta. Na Decoração, a decoradora vai até o local da festa e monta tudo pra você, prontinho no horário combinado — você só chega e aproveita.",
+};
 
 function CardCategoria({ categoria, onAbrir }) {
   // Ordem de prioridade da foto de fundo: capa que a decoradora subiu >
@@ -133,9 +134,9 @@ function CardServico({ servico, onAbrir }) {
       onClick={() => onAbrir(servico)}
       className="text-left w-full rounded-xl overflow-hidden shadow-sm anim-entrar cursor-pointer transition-all duration-200 ease-out active:scale-[0.97]"
     >
-      <div className="relative flex items-center justify-center" style={{ height: 56, background: temFoto ? "#000" : GRADIENTE_CATEGORIA }}>
-        {temFoto && <img src={servico.imagem} onError={() => setImagemFalhou(true)} className="absolute inset-0 w-full h-full object-cover opacity-60" />}
-        <p className="fredoka font-bold text-white uppercase tracking-wide text-xs relative">{servico.label} <span className="opacity-70 font-normal normal-case">· o que é isso?</span></p>
+      <div className="relative flex items-center justify-center px-4 text-center" style={{ height: 72, background: temFoto ? "#000" : GRADIENTE_CATEGORIA }}>
+        {temFoto && <img src={servico.imagem} onError={() => setImagemFalhou(true)} className="absolute inset-0 w-full h-full object-cover opacity-50" />}
+        <p className="fredoka font-bold text-white uppercase tracking-wide text-xs relative leading-tight">{servico.label} <span className="opacity-70 font-normal normal-case block">toque pra ver</span></p>
       </div>
     </button>
   );
@@ -302,7 +303,7 @@ function App() {
   const [categoriaAtiva, setCategoriaAtiva] = useState(null); // item de CATEGORIAS_CATALOGO, ou null = "todos os kits"
   const [kitAberto, setKitAberto] = useState(null);
   const [favoritos, setFavoritos] = useState([]);
-  const [explicacaoAberta, setExplicacaoAberta] = useState(null); // item de EXPLICACAO_SERVICOS, ou null
+  const [explicacaoAberta, setExplicacaoAberta] = useState(null); // true quando o card Pegue e Monte/Decoração é clicado
   const [tela, setTela] = useState("categorias"); // "categorias" | "kits"
 
   useEffect(() => {
@@ -341,7 +342,9 @@ function App() {
   function comContagem(lista) {
     const capas = decoradora?.catalogo_capas_categorias || {};
     const nomes = decoradora?.catalogo_nomes_categorias || {};
+    const ocultas = decoradora?.catalogo_categorias_ocultas || [];
     return lista
+      .filter((c) => !ocultas.includes(c.chave))
       .map((c) => {
         const kitsDaCategoria = kits.filter(c.match);
         const fotoDeKit = kitsDaCategoria.find((k) => k.fotos && k.fotos[0]);
@@ -420,10 +423,7 @@ function App() {
         {tela === "categorias" ? (
           <div>
             <div className="mb-5">
-              <p className="text-xs font-bold uppercase tracking-wide mb-2 text-slate-400">Pegue e Monte ou Decoração? Qual a diferença?</p>
-              <div className="grid grid-cols-2 gap-3">
-                {EXPLICACAO_SERVICOS.map((s) => <CardServico key={s.chave} servico={s} onAbrir={setExplicacaoAberta} />)}
-              </div>
+              <CardServico servico={EXPLICACAO_PEGUE_MONTE_DECORACAO} onAbrir={setExplicacaoAberta} />
             </div>
 
             {categorias.length > 0 && (
