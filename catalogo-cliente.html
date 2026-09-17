@@ -161,15 +161,12 @@ function TelaResumoCategoria({ categoria, corDestaque, onVerKits, onFechar }) {
 }
 
 function CardServico({ servico, onAbrir }) {
-  const [imagemFalhou, setImagemFalhou] = useState(false);
-  const temFoto = servico.imagem && !imagemFalhou;
   return (
     <button
       onClick={() => onAbrir(servico)}
       className="text-left w-full rounded-xl overflow-hidden shadow-sm anim-entrar cursor-pointer transition-all duration-200 ease-out active:scale-[0.97]"
     >
-      <div className="relative flex items-center justify-center px-4 text-center" style={{ height: 72, background: temFoto ? "#000" : GRADIENTE_CATEGORIA }}>
-        {temFoto && <img src={servico.imagem} onError={() => setImagemFalhou(true)} className="absolute inset-0 w-full h-full object-cover opacity-50" />}
+      <div className="relative flex items-center justify-center px-4 text-center" style={{ height: 72, background: GRADIENTE_CATEGORIA }}>
         <p className="fredoka font-bold text-white uppercase tracking-wide text-xs relative leading-tight">{servico.label} <span className="opacity-70 font-normal normal-case block">toque pra ver</span></p>
       </div>
     </button>
