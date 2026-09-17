@@ -443,14 +443,18 @@ function App() {
 
   return (
     <div className="min-h-screen pb-10">
+      {/* Altura fixa cortava banner quadrado (celular) numa faixa bem baixa e
+          larga, escondendo boa parte da imagem. Usar a proporção real do
+          tamanho recomendado no painel (com object-contain) garante que o
+          banner inteiro sempre apareça, tanto no computador quanto no celular. */}
       {decoradora.catalogo_banner_mobile_url && (
-        <div className="w-full h-40 bg-slate-100 sm:hidden"><img src={decoradora.catalogo_banner_mobile_url} className="w-full h-full object-cover" /></div>
+        <div className="w-full bg-slate-100 sm:hidden" style={{ aspectRatio: "4 / 3" }}><img src={decoradora.catalogo_banner_mobile_url} className="w-full h-full object-contain" /></div>
       )}
       {(decoradora.catalogo_banner_url || decoradora.catalogo_banner_mobile_url) && (
-        <div className="w-full h-44 bg-slate-100 hidden sm:block"><img src={decoradora.catalogo_banner_url || decoradora.catalogo_banner_mobile_url} className="w-full h-full object-cover" /></div>
+        <div className="w-full bg-slate-100 hidden sm:block" style={{ aspectRatio: "3 / 1" }}><img src={decoradora.catalogo_banner_url || decoradora.catalogo_banner_mobile_url} className="w-full h-full object-contain" /></div>
       )}
       {!decoradora.catalogo_banner_mobile_url && decoradora.catalogo_banner_url && (
-        <div className="w-full h-32 bg-slate-100 sm:hidden"><img src={decoradora.catalogo_banner_url} className="w-full h-full object-cover" /></div>
+        <div className="w-full bg-slate-100 sm:hidden" style={{ aspectRatio: "3 / 1" }}><img src={decoradora.catalogo_banner_url} className="w-full h-full object-contain" /></div>
       )}
 
       <div className="max-w-2xl mx-auto px-4">
