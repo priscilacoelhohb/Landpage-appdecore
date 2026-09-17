@@ -84,27 +84,30 @@ function CardKit({ kit, mostrarValores, corDestaque, onAbrir }) {
   );
 }
 
-function CardCategoria({ categoria, corDestaque, onAbrir }) {
-  // Tenta a imagem própria da categoria primeiro; se ainda não foi enviada
-  // (arquivo não existe), cai pra foto de um kit; sem nenhuma das duas,
-  // mostra um bloco colorido com emoji.
-  const [imagemFalhou, setImagemFalhou] = useState(false);
-  const srcFinal = (!imagemFalhou && categoria.imagem) ? categoria.imagem : categoria.fotoReserva;
+const GRADIENTE_CATEGORIA = "linear-gradient(135deg, #8B5CF6, #2563EB)";
+
+function CardCategoria({ categoria, onAbrir }) {
+  // Ordem de prioridade da foto de fundo: capa que a decoradora subiu >
+  // imagem padrão da categoria (se o arquivo existir) > foto de um kit
+  // daquela categoria > nada (fundo só com o gradiente).
+  const candidatos = [categoria.capaCustom, categoria.imagem, categoria.fotoReserva].filter(Boolean);
+  const [idx, setIdx] = useState(0);
+  const srcFinal = candidatos[idx] || null;
   return (
     <button
       onClick={() => onAbrir(categoria)}
-      className="text-left w-full rounded-2xl overflow-hidden bg-white border border-slate-100 shadow-sm anim-entrar cursor-pointer transition-all duration-300 ease-out hover:-translate-y-1 hover:shadow-xl active:scale-[0.97] active:shadow-sm"
+      className="text-left w-full rounded-2xl overflow-hidden bg-slate-100 border border-slate-100 shadow-sm anim-entrar cursor-pointer transition-all duration-300 ease-out hover:-translate-y-1 hover:shadow-xl active:scale-[0.97] active:shadow-sm"
     >
-      <div className="relative aspect-square bg-slate-100">
+      <div className="relative aspect-square">
         {srcFinal ? (
-          <img src={srcFinal} onError={() => setImagemFalhou(true)} className="w-full h-full object-cover" />
+          <img src={srcFinal} onError={() => setIdx((i) => i + 1)} className="w-full h-full object-cover" />
         ) : (
-          <div className="w-full h-full flex items-center justify-center text-3xl">🎁</div>
+          <div className="w-full h-full" style={{ background: GRADIENTE_CATEGORIA }} />
         )}
-        <div className="absolute inset-0" style={{ background: "linear-gradient(to top, rgba(0,0,0,.55), transparent 55%)" }} />
-        <div className="absolute bottom-0 left-0 right-0 p-3">
-          <p className="font-bold text-sm text-white leading-tight">{categoria.label}</p>
-          <p className="text-[11px] font-semibold text-white/80">{categoria.qtd} kit{categoria.qtd > 1 ? "s" : ""}</p>
+        <div className="absolute inset-0 flex items-center justify-center p-3">
+          <div className="px-3.5 py-2 rounded-xl text-center" style={{ background: GRADIENTE_CATEGORIA, boxShadow: "0 4px 16px rgba(0,0,0,.3)", border: "2px solid rgba(255,255,255,.6)" }}>
+            <p className="fredoka font-bold text-white uppercase tracking-wide text-sm leading-tight">{categoria.label}</p>
+          </div>
         </div>
       </div>
     </button>
@@ -292,11 +295,12 @@ function App() {
   const whatsappContato = (decoradora?.whatsapp_contato || "").replace(/\D/g, "");
 
   function comContagem(lista) {
+    const capas = decoradora?.catalogo_capas_categorias || {};
     return lista
       .map((c) => {
         const kitsDaCategoria = kits.filter(c.match);
         const fotoDeKit = kitsDaCategoria.find((k) => k.fotos && k.fotos[0]);
-        return { ...c, qtd: kitsDaCategoria.length, fotoReserva: fotoDeKit ? fotoDeKit.fotos[0].imagem_url : null };
+        return { ...c, qtd: kitsDaCategoria.length, capaCustom: capas[c.chave] || null, fotoReserva: fotoDeKit ? fotoDeKit.fotos[0].imagem_url : null };
       })
       .filter((c) => c.qtd > 0);
   }
@@ -374,7 +378,7 @@ function App() {
               <div className="mb-5">
                 <p className="text-xs font-bold uppercase tracking-wide mb-2" style={{ color: corDestaque }}>Escolha uma categoria</p>
                 <div className="grid grid-cols-2 gap-3">
-                  {categorias.map((c) => <CardCategoria key={c.chave} categoria={c} corDestaque={corDestaque} onAbrir={abrirCategoria} />)}
+                  {categorias.map((c) => <CardCategoria key={c.chave} categoria={c} onAbrir={abrirCategoria} />)}
                 </div>
               </div>
             )}
@@ -383,7 +387,7 @@ function App() {
               <div className="mb-5">
                 <p className="text-xs font-bold uppercase tracking-wide mb-2 text-slate-400">Kits Pegue e Monte prontos</p>
                 <div className="grid grid-cols-2 gap-3">
-                  {faixas.map((c) => <CardCategoria key={c.chave} categoria={c} corDestaque={corDestaque} onAbrir={abrirCategoria} />)}
+                  {faixas.map((c) => <CardCategoria key={c.chave} categoria={c} onAbrir={abrirCategoria} />)}
                 </div>
               </div>
             )}
