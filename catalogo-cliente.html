@@ -96,6 +96,24 @@ function CardKit({ kit, mostrarValores, corDestaque, onAbrir }) {
   );
 }
 
+function CardCategoria({ categoria, corDestaque, onAbrir }) {
+  return (
+    <button
+      onClick={() => onAbrir(categoria)}
+      className="text-left w-full rounded-2xl overflow-hidden bg-white border border-slate-100 shadow-sm anim-entrar cursor-pointer transition-all duration-300 ease-out hover:-translate-y-1 hover:shadow-xl active:scale-[0.97] active:shadow-sm"
+    >
+      <div className="relative aspect-square bg-slate-100">
+        {categoria.foto ? <img src={categoria.foto} className="w-full h-full object-cover" /> : <div className="w-full h-full flex items-center justify-center text-3xl">🎁</div>}
+        <div className="absolute inset-0" style={{ background: "linear-gradient(to top, rgba(0,0,0,.55), transparent 55%)" }} />
+        <div className="absolute bottom-0 left-0 right-0 p-3">
+          <p className="font-bold text-sm text-white leading-tight">{categoria.label}</p>
+          <p className="text-[11px] font-semibold text-white/80">{categoria.qtd} kit{categoria.qtd > 1 ? "s" : ""}</p>
+        </div>
+      </div>
+    </button>
+  );
+}
+
 function DetalheKit({ kit, mostrarValores, corDestaque, favoritado, onFavoritar, onFechar, whatsappContato, nomeLoja }) {
   const [indiceFoto, setIndiceFoto] = useState(0);
   const [fotoAmpliada, setFotoAmpliada] = useState(false);
@@ -212,6 +230,7 @@ function App() {
   const [filtroNivel, setFiltroNivel] = useState("");
   const [kitAberto, setKitAberto] = useState(null);
   const [favoritos, setFavoritos] = useState([]);
+  const [tela, setTela] = useState("categorias"); // "categorias" | "kits"
 
   useEffect(() => {
     async function carregar() {
@@ -249,6 +268,45 @@ function App() {
   const eventosDisponiveis = useMemo(() => [...new Set(kits.map((k) => k.tipo_evento).filter(Boolean))], [kits]);
   const publicosDisponiveis = useMemo(() => [...new Set(kits.map((k) => k.publico).filter(Boolean))], [kits]);
   const niveisDisponiveis = useMemo(() => [...new Set(kits.map((k) => k.nivel).filter(Boolean))], [kits]);
+
+  // Agrupa os kits publicados por categoria (tipo de evento + público), pra
+  // virar os cards da tela inicial — nasce sozinho do que a decoradora já
+  // cadastrou, nunca é uma lista fixa de categorias.
+  const categorias = useMemo(() => {
+    const grupos = {};
+    kits.forEach((k) => {
+      const tipoEvento = (k.tipo_evento || "").trim();
+      const publico = (k.publico || "").trim();
+      if (!tipoEvento && !publico) return; // kit sem categoria não vira card, mas continua na lista geral
+      const chave = tipoEvento + "|" + publico;
+      if (!grupos[chave]) {
+        grupos[chave] = { tipoEvento, publico, label: [tipoEvento, publico].filter(Boolean).join(" · "), qtd: 0, foto: null };
+      }
+      grupos[chave].qtd += 1;
+      if (!grupos[chave].foto && k.fotos && k.fotos[0]) grupos[chave].foto = k.fotos[0].imagem_url;
+    });
+    return Object.values(grupos).sort((a, b) => b.qtd - a.qtd);
+  }, [kits]);
+
+  // Só vale a pena mostrar a tela de categorias se tiver mais de uma opção
+  // pra escolher, e kits suficientes pra fazer diferença (senão é só um
+  // clique extra sem necessidade nenhuma).
+  const usaTelaCategorias = categorias.length > 1 && kits.length > 4;
+
+  useEffect(() => {
+    if (!carregando && !usaTelaCategorias) setTela("kits");
+  }, [carregando, usaTelaCategorias]);
+
+  function abrirCategoria(categoria) {
+    setFiltroEvento(categoria.tipoEvento);
+    setFiltroPublico(categoria.publico);
+    setTela("kits");
+  }
+
+  function buscarDireto(valor) {
+    setBusca(valor);
+    if (valor.trim()) setTela("kits");
+  }
 
   const filtrados = kits.filter((k) =>
     k.nome.toLowerCase().includes(busca.toLowerCase()) &&
@@ -289,8 +347,23 @@ function App() {
 
         {decoradora.catalogo_texto_boasvindas && <p className="text-sm text-slate-500 mb-5">{decoradora.catalogo_texto_boasvindas}</p>}
 
-        <input value={busca} onChange={(e) => setBusca(e.target.value)} placeholder="Buscar kit..." className="w-full px-4 py-3 rounded-2xl border-2 border-slate-200 text-sm mb-4" />
+        <input value={busca} onChange={(e) => buscarDireto(e.target.value)} placeholder="Buscar kit..." className="w-full px-4 py-3 rounded-2xl border-2 border-slate-200 text-sm mb-4" />
 
+        {tela === "categorias" ? (
+          <div>
+            <p className="text-xs font-bold uppercase tracking-wide mb-2" style={{ color: corDestaque }}>Escolha uma categoria</p>
+            <div className="grid grid-cols-2 gap-3">
+              {categorias.map((c) => <CardCategoria key={c.tipoEvento + "|" + c.publico} categoria={c} corDestaque={corDestaque} onAbrir={abrirCategoria} />)}
+            </div>
+          </div>
+        ) : (
+        <div>
+        {usaTelaCategorias && (
+          <button onClick={() => { setTela("categorias"); setFiltroEvento(""); setFiltroPublico(""); }} className="flex items-center gap-1.5 text-xs font-bold mb-3 cursor-pointer" style={{ color: corDestaque }}>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" className="w-3.5 h-3.5"><path d="m15 18-6-6 6-6" /></svg>
+            Categorias
+          </button>
+        )}
         <ChipsFiltro label="Tipo de evento" opcoes={eventosDisponiveis} valor={filtroEvento} onChange={setFiltroEvento} corDestaque={corDestaque} />
         <ChipsFiltro label="Público" opcoes={publicosDisponiveis} valor={filtroPublico} onChange={setFiltroPublico} corDestaque={corDestaque} />
         <ChipsFiltro label="Nível" opcoes={niveisDisponiveis} valor={filtroNivel} onChange={setFiltroNivel} corDestaque={corDestaque} />
@@ -313,6 +386,8 @@ function App() {
               {restante.map((k) => <CardKit key={k.id} kit={k} mostrarValores={mostrarValores} corDestaque={corDestaque} onAbrir={setKitAberto} />)}
             </div>
           </div>
+        )}
+        </div>
         )}
       </div>
 
