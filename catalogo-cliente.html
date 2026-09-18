@@ -474,9 +474,11 @@ function App() {
 
         {tela === "categorias" ? (
           <div>
-            <div className="mb-5">
-              <CardServico servico={EXPLICACAO_PEGUE_MONTE_DECORACAO} onAbrir={setExplicacaoAberta} />
-            </div>
+            {decoradora.catalogo_mostrar_explicacao_servico !== false && (
+              <div className="mb-5">
+                <CardServico servico={EXPLICACAO_PEGUE_MONTE_DECORACAO} onAbrir={setExplicacaoAberta} />
+              </div>
+            )}
 
             {categorias.length > 0 && (
               <div className="mb-5">
