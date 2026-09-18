@@ -199,7 +199,7 @@ function ModalExplicacaoServico({ servico, onFechar }) {
   );
 }
 
-function DetalheKit({ kit, mostrarValores, corDestaque, favoritado, onFavoritar, onFechar, whatsappContato, nomeLoja }) {
+function DetalheKit({ kit, mostrarValores, corDestaque, favoritado, onFavoritar, onFechar, whatsappContato }) {
   const [indiceFoto, setIndiceFoto] = useState(0);
   const [fotoAmpliada, setFotoAmpliada] = useState(false);
   const fotos = kit.fotos || [];
@@ -254,9 +254,15 @@ function DetalheKit({ kit, mostrarValores, corDestaque, favoritado, onFavoritar,
           <button onClick={() => onFavoritar(kit)} className="px-4 py-3 rounded-2xl font-bold text-sm cursor-pointer" style={{ background: favoritado ? `${corDestaque}22` : "#F1F5F9", color: favoritado ? corDestaque : "#64748b" }}>
             {favoritado ? "❤️" : "🤍"}
           </button>
-          <a href={`https://wa.me/${whatsappContato}?text=${encodeURIComponent(mensagem)}`} className="flex-1 text-center py-3 rounded-2xl font-bold text-sm text-white cursor-pointer" style={{ background: "#25D366" }}>
-            Quero esse kit no WhatsApp
-          </a>
+          {whatsappContato ? (
+            <a href={`https://wa.me/${whatsappContato}?text=${encodeURIComponent(mensagem)}`} className="flex-1 text-center py-3 rounded-2xl font-bold text-sm text-white cursor-pointer" style={{ background: "#25D366" }}>
+              Quero esse kit no WhatsApp
+            </a>
+          ) : (
+            <div className="flex-1 text-center py-3 rounded-2xl font-bold text-sm" style={{ background: "#F1F5F9", color: "#94a3b8" }} title="Essa loja ainda não cadastrou um WhatsApp de contato">
+              Contato indisponível
+            </div>
+          )}
         </div>
       </div>
 
@@ -270,7 +276,7 @@ function DetalheKit({ kit, mostrarValores, corDestaque, favoritado, onFavoritar,
   );
 }
 
-function BarraFavoritos({ favoritos, corDestaque, whatsappContato, nomeLoja }) {
+function BarraFavoritos({ favoritos, corDestaque, whatsappContato }) {
   const [aberto, setAberto] = useState(false);
   if (favoritos.length === 0) return null;
   const mensagem = `Oi! Gostei destes kits no catálogo:\n\n${favoritos.map((k) => `• ${k.nome}`).join("\n")}\n\nQuero saber a disponibilidade!`;
@@ -286,9 +292,15 @@ function BarraFavoritos({ favoritos, corDestaque, whatsappContato, nomeLoja }) {
             <ul className="space-y-2 mb-5 max-h-60 overflow-y-auto">
               {favoritos.map((k) => <li key={k.id} className="text-sm" style={{ color: AZUL }}>• {k.nome}</li>)}
             </ul>
-            <a href={`https://wa.me/${whatsappContato}?text=${encodeURIComponent(mensagem)}`} className="block text-center py-3 rounded-2xl font-bold text-sm text-white cursor-pointer" style={{ background: "#25D366" }}>
-              Mandar tudo pro WhatsApp
-            </a>
+            {whatsappContato ? (
+              <a href={`https://wa.me/${whatsappContato}?text=${encodeURIComponent(mensagem)}`} className="block text-center py-3 rounded-2xl font-bold text-sm text-white cursor-pointer" style={{ background: "#25D366" }}>
+                Mandar tudo pro WhatsApp
+              </a>
+            ) : (
+              <div className="text-center py-3 rounded-2xl font-bold text-sm" style={{ background: "#F1F5F9", color: "#94a3b8" }} title="Essa loja ainda não cadastrou um WhatsApp de contato">
+                Contato indisponível
+              </div>
+            )}
             <button onClick={() => setAberto(false)} className="w-full text-center py-2.5 mt-2 text-sm font-semibold cursor-pointer" style={{ color: "#94a3b8" }}>Fechar</button>
           </div>
         </div>
@@ -554,7 +566,6 @@ function App() {
           onFavoritar={toggleFavorito}
           onFechar={() => setKitAberto(null)}
           whatsappContato={whatsappContato}
-          nomeLoja={decoradora.nome_loja}
         />
       )}
 
@@ -563,7 +574,7 @@ function App() {
       {pacotesAbertos === "pegue_monte" && <ModalPacotes titulo="Pegue e Monte" pacotes={pacotesPegueMonte} onFechar={() => setPacotesAbertos(null)} />}
       {pacotesAbertos === "decoracao" && <ModalPacotes titulo="Decoração" pacotes={pacotesDecoracao} onFechar={() => setPacotesAbertos(null)} />}
 
-      <BarraFavoritos favoritos={favoritos} corDestaque={corDestaque} whatsappContato={whatsappContato} nomeLoja={decoradora.nome_loja} />
+      <BarraFavoritos favoritos={favoritos} corDestaque={corDestaque} whatsappContato={whatsappContato} />
     </div>
   );
 }
