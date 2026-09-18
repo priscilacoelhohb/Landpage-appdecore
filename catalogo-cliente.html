@@ -55,7 +55,7 @@ function gerarKitsDemo() {
     kit("Kit Prata Safari", "Mesversário", "Unissex", "Prata", "#8B5CF6", 180, false),
     kit("Kit Luxo 15 Anos", "15 Anos", "Mulher", "Luxo", "#FFC93C", 890, false),
     kit("Kit Minimalista Chá de Bebê", "Chá de Bebê/Fralda", "Unissex", "Minimalista", "#34D399", 150, false),
-    kit("Kit Pegue e Monte Básico", "Aniversário Infantil", "Unissex", "Básico", "#F97316", 90, false, "basico"),
+    kit("Kit Pegue e Monte Bronze", "Aniversário Infantil", "Unissex", "Bronze", "#F97316", 90, false, "basico"),
     kit("Kit Casamento Boho", "Casamento", "Unissex", "Padrão", "#0EA5E9", 600, false),
   ];
 }
@@ -325,7 +325,7 @@ function categoriaExtra(extra) {
 // As 3 faixas fixas de Pegue e Monte — separadas do "Nível" livre de cada
 // decoradora, pra dar uma navegação por preço padronizada.
 const FAIXAS_PEGUE_MONTE = [
-  { chave: "pm-basico", label: "Kit Básico", imagem: "categorias/pm-basico.jpg", match: (k) => k.faixa_pegue_monte === "basico" },
+  { chave: "pm-basico", label: "Kit Bronze", imagem: "categorias/pm-basico.jpg", match: (k) => k.faixa_pegue_monte === "basico" },
   { chave: "pm-prata", label: "Kit Prata", imagem: "categorias/pm-prata.jpg", match: (k) => k.faixa_pegue_monte === "prata" },
   { chave: "pm-ouro", label: "Kit Ouro", imagem: "categorias/pm-ouro.jpg", match: (k) => k.faixa_pegue_monte === "ouro" },
 ];
@@ -405,7 +405,7 @@ function App() {
   const categoriasExtras = useMemo(() => (decoradora?.catalogo_categorias_extras || []).map(categoriaExtra).filter(Boolean), [decoradora]);
   const categorias = useMemo(() => comContagem([...CATEGORIAS_CATALOGO, ...categoriasExtras]), [kits, categoriasExtras]);
 
-  // Faixas de Pegue e Monte (Básico/Prata/Ouro) — dimensão separada, por preço.
+  // Faixas de Pegue e Monte (Bronze/Prata/Ouro) — dimensão separada, por preço.
   const faixas = useMemo(() => comContagem(FAIXAS_PEGUE_MONTE), [kits]);
 
   // Só vale a pena mostrar a tela de categorias se tiver pelo menos uma
