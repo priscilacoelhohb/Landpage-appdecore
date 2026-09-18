@@ -409,9 +409,11 @@ function App() {
   const faixas = useMemo(() => comContagem(FAIXAS_PEGUE_MONTE), [kits]);
 
   // Só vale a pena mostrar a tela de categorias se tiver pelo menos uma
-  // categoria ou faixa reconhecida, e kits suficientes pra fazer diferença
-  // (senão é só um clique extra sem necessidade nenhuma).
-  const usaTelaCategorias = (categorias.length > 0 || faixas.length > 0) && kits.length > 4;
+  // categoria/faixa reconhecida e pelo menos 1 kit pra navegar — o limite de
+  // "mais de 4 kits" escondia o trabalho de capa/categoria da decoradora
+  // até ela ter um catálogo grande, o que não faz sentido: se ela já
+  // configurou categorias, é pra aparecer.
+  const usaTelaCategorias = (categorias.length > 0 || faixas.length > 0) && kits.length > 0;
 
   useEffect(() => {
     if (!carregando && !usaTelaCategorias) setTela("kits");
