@@ -478,17 +478,6 @@ function App() {
               <CardServico servico={EXPLICACAO_PEGUE_MONTE_DECORACAO} onAbrir={setExplicacaoAberta} />
             </div>
 
-            {(pacotesPegueMonte.length > 0 || pacotesDecoracao.length > 0) && (
-              <div className="grid grid-cols-2 gap-3 mb-5">
-                {pacotesPegueMonte.length > 0 && (
-                  <CardServico servico={{ label: "O que vem em cada Pegue e Monte" }} onAbrir={() => setPacotesAbertos("pegue_monte")} />
-                )}
-                {pacotesDecoracao.length > 0 && (
-                  <CardServico servico={{ label: "O que vem em cada Decoração" }} onAbrir={() => setPacotesAbertos("decoracao")} />
-                )}
-              </div>
-            )}
-
             {categorias.length > 0 && (
               <div className="mb-5">
                 <p className="text-xs font-bold uppercase tracking-wide mb-2" style={{ color: corDestaque }}>Escolha uma categoria</p>
@@ -504,6 +493,17 @@ function App() {
                 <div className="grid grid-cols-2 gap-3">
                   {faixas.map((c) => <CardCategoria key={c.chave} categoria={c} onAbrir={abrirCategoria} />)}
                 </div>
+              </div>
+            )}
+
+            {pacotesPegueMonte.length > 0 && (
+              <div className="mb-3">
+                <CardServico servico={{ label: "O que vem em cada Pegue e Monte" }} onAbrir={() => setPacotesAbertos("pegue_monte")} />
+              </div>
+            )}
+            {pacotesDecoracao.length > 0 && (
+              <div className="mb-5">
+                <CardServico servico={{ label: "O que vem em cada Decoração" }} onAbrir={() => setPacotesAbertos("decoracao")} />
               </div>
             )}
 
