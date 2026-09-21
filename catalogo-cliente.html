@@ -116,9 +116,13 @@ function CardCategoria({ categoria, onAbrir }) {
             nome — aplica em qualquer categoria, inclusive as que a
             decoradora cadastrar, automaticamente. */}
         <div className="absolute inset-0" style={{ background: "rgba(0,0,0,.5)" }} />
-        <div className="absolute inset-0 flex items-center justify-center p-3">
-          <div className="px-3.5 py-2 rounded-xl text-center" style={{ background: GRADIENTE_FAIXA, boxShadow: "0 4px 16px rgba(0,0,0,.3)", border: "2px solid rgba(255,255,255,.6)" }}>
-            <p className="fredoka font-bold text-white uppercase tracking-wide text-sm leading-tight">{categoria.label}</p>
+        <div className="absolute inset-0 flex items-center justify-center p-2">
+          <div className="max-w-full px-3 py-2 rounded-xl text-center" style={{ background: GRADIENTE_FAIXA, boxShadow: "0 4px 16px rgba(0,0,0,.3)", border: "2px solid rgba(255,255,255,.6)" }}>
+            {/* Fonte sempre no mesmo tamanho: nome grande quebra em mais linhas
+                e o retângulo cresce (fica mais quadrado) em vez de estourar o
+                card. O zero-width space depois da "/" deixa "A/B/C" quebrar
+                bonito; quebra no meio da palavra só como último recurso. */}
+            <p className="fredoka font-bold text-white uppercase tracking-wide text-sm leading-tight" style={{ overflowWrap: "anywhere" }}>{categoria.label.replace(/\//g, "/​")}</p>
           </div>
         </div>
       </div>
