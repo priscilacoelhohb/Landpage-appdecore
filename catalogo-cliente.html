@@ -64,6 +64,17 @@ function gerarKitsDemo() {
    COMPONENTES
 ============================================================ */
 
+function BannerImg({ src, proporcao }) {
+  const [preenche, setPreenche] = useState(false);
+  return (
+    <img
+      src={src}
+      onLoad={(e) => setPreenche(Math.abs(e.target.naturalWidth / e.target.naturalHeight / proporcao - 1) < 0.08)}
+      className={`w-full h-full ${preenche ? "object-cover" : "object-contain"}`}
+    />
+  );
+}
+
 function CardKit({ kit, mostrarValores, corDestaque, onAbrir }) {
   const foto = kit.fotos && kit.fotos[0];
   const mostrarPreco = mostrarValores && kit.mostrar_preco !== false;
@@ -467,18 +478,18 @@ function App() {
 
   return (
     <div className="min-h-screen pb-10">
-      {/* Altura fixa cortava banner quadrado (celular) numa faixa bem baixa e
-          larga, escondendo boa parte da imagem. Usar a proporção real do
-          tamanho recomendado no painel (com object-contain) garante que o
-          banner inteiro sempre apareça, tanto no computador quanto no celular. */}
+      {/* Tamanhos do banner (os mesmos recomendados no painel): computador 3:1
+          (1200x400, largura máxima de 1200) e celular 4:3 (800x600). Imagem
+          na proporção certa preenche a caixa inteira; imagem antiga com
+          proporção bem diferente continua aparecendo inteira, sem corte. */}
       {decoradora.catalogo_banner_mobile_url && (
-        <div className="w-full bg-slate-100 sm:hidden" style={{ aspectRatio: "4 / 3" }}><img src={decoradora.catalogo_banner_mobile_url} className="w-full h-full object-contain" /></div>
+        <div className="w-full bg-slate-100 sm:hidden" style={{ aspectRatio: "4 / 3" }}><BannerImg src={decoradora.catalogo_banner_mobile_url} proporcao={4 / 3} /></div>
       )}
       {(decoradora.catalogo_banner_url || decoradora.catalogo_banner_mobile_url) && (
-        <div className="w-full bg-slate-100 hidden sm:block" style={{ aspectRatio: "3 / 1" }}><img src={decoradora.catalogo_banner_url || decoradora.catalogo_banner_mobile_url} className="w-full h-full object-contain" /></div>
+        <div className="w-full max-w-[1200px] mx-auto bg-slate-100 hidden sm:block" style={{ aspectRatio: "3 / 1" }}><BannerImg src={decoradora.catalogo_banner_url || decoradora.catalogo_banner_mobile_url} proporcao={3} /></div>
       )}
       {!decoradora.catalogo_banner_mobile_url && decoradora.catalogo_banner_url && (
-        <div className="w-full bg-slate-100 sm:hidden" style={{ aspectRatio: "3 / 1" }}><img src={decoradora.catalogo_banner_url} className="w-full h-full object-contain" /></div>
+        <div className="w-full bg-slate-100 sm:hidden" style={{ aspectRatio: "3 / 1" }}><BannerImg src={decoradora.catalogo_banner_url} proporcao={3} /></div>
       )}
 
       <div className="max-w-2xl mx-auto px-4">
