@@ -66,6 +66,7 @@ function gerarKitsDemo() {
 
 function CardKit({ kit, mostrarValores, corDestaque, onAbrir }) {
   const foto = kit.fotos && kit.fotos[0];
+  const mostrarPreco = mostrarValores && kit.mostrar_preco !== false;
   return (
     <button
       onClick={() => onAbrir(kit)}
@@ -78,7 +79,7 @@ function CardKit({ kit, mostrarValores, corDestaque, onAbrir }) {
       <div className="p-3">
         <p className="font-bold text-sm truncate" style={{ color: AZUL }}>{kit.nome}</p>
         {(kit.tipo_evento || kit.nivel) && <p className="text-[11px] font-semibold truncate mt-0.5" style={{ color: corDestaque }}>{[kit.tipo_evento, kit.nivel].filter(Boolean).join(" · ")}</p>}
-        {mostrarValores && kit.preco && <p className="text-sm font-bold mt-1" style={{ color: AZUL }}>{Number(kit.preco).toLocaleString("pt-BR", { style: "currency", currency: "BRL" })}</p>}
+        {mostrarPreco && kit.preco && <p className="text-sm font-bold mt-1" style={{ color: AZUL }}>{Number(kit.preco).toLocaleString("pt-BR", { style: "currency", currency: "BRL" })}</p>}
       </div>
     </button>
   );
@@ -208,7 +209,8 @@ function DetalheKit({ kit, mostrarValores, corDestaque, favoritado, onFavoritar,
   const [fotoAmpliada, setFotoAmpliada] = useState(false);
   const fotos = kit.fotos || [];
   const linkKit = `${window.location.origin}${window.location.pathname}?d=${new URLSearchParams(window.location.search).get("d") || "demo"}&kit=${kit.id}`;
-  const mensagem = mostrarValores
+  const mostrarPreco = mostrarValores && kit.mostrar_preco !== false;
+  const mensagem = mostrarPreco
     ? `Oi! Vi o kit "${kit.nome}" no catálogo (${Number(kit.preco || 0).toLocaleString("pt-BR", { style: "currency", currency: "BRL" })}) e quero saber a disponibilidade.`
     : `Oi! Vi o kit "${kit.nome}" no catálogo e quero saber o valor e a disponibilidade.`;
 
@@ -239,7 +241,7 @@ function DetalheKit({ kit, mostrarValores, corDestaque, favoritado, onFavoritar,
         {(kit.tipo_evento || kit.publico || kit.nivel) && (
           <p className="text-sm font-semibold mb-2" style={{ color: corDestaque }}>{[kit.tipo_evento, kit.publico, kit.nivel].filter(Boolean).join(" · ")}</p>
         )}
-        {mostrarValores && kit.preco && <p className="text-2xl font-bold mb-4" style={{ color: AZUL }}>{Number(kit.preco).toLocaleString("pt-BR", { style: "currency", currency: "BRL" })}</p>}
+        {mostrarPreco && kit.preco && <p className="text-2xl font-bold mb-4" style={{ color: AZUL }}>{Number(kit.preco).toLocaleString("pt-BR", { style: "currency", currency: "BRL" })}</p>}
 
         {kit.itens_inclusos && kit.itens_inclusos.length > 0 && (
           <div className="mb-6">
@@ -319,7 +321,10 @@ function BarraFavoritos({ favoritos, corDestaque, whatsappContato }) {
    ainda não existir, o card usa a foto de um kit daquela categoria
    como reserva, até a imagem definitiva ser enviada.
 ============================================================ */
-const CATEGORIAS_CATALOGO = [
+// Um kit pode estar em mais de uma categoria: além do tipo_evento/publico
+// principal, as chaves marcadas no painel ficam em categorias_chaves.
+const kitTemChave = (k, chave) => Array.isArray(k.categorias_chaves) && k.categorias_chaves.includes(chave);
+const CATEGORIAS_CATALOGO_BASE = [
   { chave: "infantil-menino", label: "Kit Masculino", imagem: "categorias/masculino.jpg", match: (k) => /infantil/i.test(k.tipo_evento || "") && /menino/i.test(k.publico || "") },
   { chave: "infantil-menina", label: "Kit Feminino", imagem: "categorias/feminino.jpg", match: (k) => /infantil/i.test(k.tipo_evento || "") && /menina/i.test(k.publico || "") },
   { chave: "adulto", label: "Kit Adulto", imagem: "categorias/adulto.jpg", match: (k) => /adulto/i.test(k.tipo_evento || "") },
@@ -327,6 +332,7 @@ const CATEGORIAS_CATALOGO = [
   { chave: "cha-fralda", label: "Chá de Fralda", imagem: "categorias/cha-fralda.jpg", match: (k) => /fralda|ch[aá] de beb[eê]/i.test(k.tipo_evento || "") },
   { chave: "cha-revelacao", label: "Chá Revelação", imagem: "categorias/cha-revelacao.jpg", match: (k) => /revela[cç][aã]o/i.test(k.tipo_evento || "") },
 ];
+const CATEGORIAS_CATALOGO = CATEGORIAS_CATALOGO_BASE.map((c) => ({ ...c, match: (k) => c.match(k) || kitTemChave(k, c.chave) }));
 
 // Cria uma categoria a partir de uma categoria extra que a decoradora
 // cadastrou ({id, nome}) — compara com o Tipo de evento do kit, ignorando
@@ -335,7 +341,7 @@ const CATEGORIAS_CATALOGO = [
 function categoriaExtra(extra) {
   if (!extra || !extra.nome || !extra.nome.trim()) return null;
   const alvo = extra.nome.trim().toLowerCase();
-  return { chave: extra.id, label: extra.nome.trim(), imagem: null, match: (k) => (k.tipo_evento || "").trim().toLowerCase() === alvo };
+  return { chave: extra.id, label: extra.nome.trim(), imagem: null, match: (k) => (k.tipo_evento || "").trim().toLowerCase() === alvo || kitTemChave(k, extra.id) };
 }
 
 // As 3 faixas fixas de Pegue e Monte — separadas do "Nível" livre de cada
