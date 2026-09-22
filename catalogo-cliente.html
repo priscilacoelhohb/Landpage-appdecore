@@ -75,7 +75,7 @@ function BannerImg({ src, proporcao }) {
   );
 }
 
-function CardKit({ kit, mostrarValores, corDestaque, onAbrir }) {
+function CardKit({ kit, mostrarValores, corDestaque, categoriaLabel, onAbrir }) {
   const foto = kit.fotos && kit.fotos[0];
   const mostrarPreco = mostrarValores && kit.mostrar_preco !== false;
   return (
@@ -89,7 +89,7 @@ function CardKit({ kit, mostrarValores, corDestaque, onAbrir }) {
       </div>
       <div className="p-3">
         <p className="font-bold text-sm truncate" style={{ color: AZUL }}>{kit.nome}</p>
-        {(kit.tipo_evento || kit.nivel) && <p className="text-[11px] font-semibold truncate mt-0.5" style={{ color: corDestaque }}>{[kit.tipo_evento, kit.nivel].filter(Boolean).join(" · ")}</p>}
+        {(categoriaLabel || kit.nivel) && <p className="text-[11px] font-semibold truncate mt-0.5" style={{ color: corDestaque }}>{[categoriaLabel, kit.nivel].filter(Boolean).join(" · ")}</p>}
         {mostrarPreco && kit.preco && <p className="text-sm font-bold mt-1" style={{ color: AZUL }}>{Number(kit.preco).toLocaleString("pt-BR", { style: "currency", currency: "BRL" })}</p>}
       </div>
     </button>
@@ -215,7 +215,7 @@ function ModalExplicacaoServico({ servico, onFechar }) {
   );
 }
 
-function DetalheKit({ kit, mostrarValores, corDestaque, favoritado, onFavoritar, onFechar, whatsappContato }) {
+function DetalheKit({ kit, mostrarValores, corDestaque, categoriaLabel, favoritado, onFavoritar, onFechar, whatsappContato }) {
   const [indiceFoto, setIndiceFoto] = useState(0);
   const [fotoAmpliada, setFotoAmpliada] = useState(false);
   const fotos = kit.fotos || [];
@@ -249,8 +249,8 @@ function DetalheKit({ kit, mostrarValores, corDestaque, favoritado, onFavoritar,
         )}
 
         <h1 className="fredoka text-xl font-bold mb-1" style={{ color: AZUL }}>{kit.nome}</h1>
-        {(kit.tipo_evento || kit.publico || kit.nivel) && (
-          <p className="text-sm font-semibold mb-2" style={{ color: corDestaque }}>{[kit.tipo_evento, kit.publico, kit.nivel].filter(Boolean).join(" · ")}</p>
+        {(categoriaLabel || kit.nivel) && (
+          <p className="text-sm font-semibold mb-2" style={{ color: corDestaque }}>{[categoriaLabel, kit.nivel].filter(Boolean).join(" · ")}</p>
         )}
         {mostrarPreco && kit.preco && <p className="text-2xl font-bold mb-4" style={{ color: AZUL }}>{Number(kit.preco).toLocaleString("pt-BR", { style: "currency", currency: "BRL" })}</p>}
 
@@ -397,7 +397,15 @@ function App() {
       const { data: dec, error: erroDec } = await sb.from("catalogo_publico").select("*").eq("decoradora_id", decoradoraId).maybeSingle();
       if (erroDec || !dec) { setErro("Não achamos esse catálogo. Confira o link com quem te enviou."); setCarregando(false); return; }
       const { data: listaKits } = await sb.from("catalogo_kits").select("*").eq("decoradora_id", decoradoraId).eq("status", "publicado").order("em_destaque", { ascending: false });
-      const { data: listaFotos } = await sb.from("catalogo_kit_fotos").select("*").order("ordem", { ascending: true });
+      // Antes buscava TODAS as fotos de TODOS os kits da plataforma (sem
+      // filtro nenhum) — com a tabela passando de 1000 linhas, o Supabase
+      // corta o resto (limite padrão do PostgREST), e fotos de kits de
+      // decoradoras aleatórias somem sem aviso. Filtrar só pelos kits
+      // desta loja resolve o corte e de quebra deixa a busca bem mais leve.
+      const idsKits = (listaKits || []).map((k) => k.id);
+      const { data: listaFotos } = idsKits.length > 0
+        ? await sb.from("catalogo_kit_fotos").select("*").in("kit_id", idsKits).order("ordem", { ascending: true })
+        : { data: [] };
       const fotosPorKit = {};
       (listaFotos || []).forEach((f) => { (fotosPorKit[f.kit_id] = fotosPorKit[f.kit_id] || []).push(f); });
       const kitsCompletos = (listaKits || []).map((k) => ({ ...k, fotos: fotosPorKit[k.id] || [] }));
@@ -437,6 +445,18 @@ function App() {
   // painel, não a quantidade de kits.
   const categoriasExtras = useMemo(() => (decoradora?.catalogo_categorias_extras || []).map(categoriaExtra).filter(Boolean), [decoradora]);
   const categorias = useMemo(() => comContagem([...CATEGORIAS_CATALOGO, ...categoriasExtras]), [kits, categoriasExtras]);
+
+  // Legenda do kit (card e detalhe): sempre o nome ATUAL da categoria, o mesmo
+  // que a decoradora configurou — nunca o texto bruto salvo no kit (tipo_evento
+  // /publico), que fica desatualizado se ela renomear a categoria depois. Um
+  // kit marcado em Masculino e Feminino ao mesmo tempo mostra as duas.
+  const categoriaLabelPorKit = useMemo(() => {
+    const nomes = decoradora?.catalogo_nomes_categorias || {};
+    const todas = [...CATEGORIAS_CATALOGO, ...categoriasExtras];
+    const mapa = {};
+    kits.forEach((k) => { mapa[k.id] = todas.filter((c) => c.match(k)).map((c) => nomes[c.chave] || c.label).join(" / "); });
+    return mapa;
+  }, [kits, categoriasExtras, decoradora]);
 
   // Faixas de Pegue e Monte (Bronze/Prata/Ouro) — dimensão separada, por preço.
   const faixas = useMemo(() => comContagem(FAIXAS_PEGUE_MONTE), [kits]);
@@ -561,7 +581,7 @@ function App() {
           <div className="mt-4 mb-2">
             <p className="text-xs font-bold uppercase tracking-wide mb-2" style={{ color: corDestaque }}>⭐ Em destaque</p>
             <div className="grid grid-cols-2 gap-3">
-              {destaques.map((k) => <CardKit key={k.id} kit={k} mostrarValores={mostrarValores} corDestaque={corDestaque} onAbrir={setKitAberto} />)}
+              {destaques.map((k) => <CardKit key={k.id} kit={k} mostrarValores={mostrarValores} corDestaque={corDestaque} categoriaLabel={categoriaLabelPorKit[k.id]} onAbrir={setKitAberto} />)}
             </div>
           </div>
         )}
@@ -570,7 +590,7 @@ function App() {
           <div className="mt-5">
             {destaques.length > 0 && <p className="text-xs font-bold uppercase tracking-wide mb-2 text-slate-400">Todos os kits</p>}
             <div className="grid grid-cols-2 gap-3">
-              {restante.map((k) => <CardKit key={k.id} kit={k} mostrarValores={mostrarValores} corDestaque={corDestaque} onAbrir={setKitAberto} />)}
+              {restante.map((k) => <CardKit key={k.id} kit={k} mostrarValores={mostrarValores} corDestaque={corDestaque} categoriaLabel={categoriaLabelPorKit[k.id]} onAbrir={setKitAberto} />)}
             </div>
           </div>
         )}
@@ -583,6 +603,7 @@ function App() {
           kit={kitAberto}
           mostrarValores={mostrarValores}
           corDestaque={corDestaque}
+          categoriaLabel={categoriaLabelPorKit[kitAberto.id]}
           favoritado={favoritos.some((f) => f.id === kitAberto.id)}
           onFavoritar={toggleFavorito}
           onFechar={() => setKitAberto(null)}
