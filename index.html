@@ -164,9 +164,10 @@
   .reveal-3{transition-delay:.25s;}
   .reveal-4{transition-delay:.35s;}
   .reveal-5{transition-delay:.45s;}
+  .reveal-6{transition-delay:.55s;}
 
   @media (prefers-reduced-motion: reduce){
-    .aurora-1,.aurora-2,.float-1,.float-2,.float-3{animation:none;}
+    .aurora-1,.aurora-2,.float-1,.float-2,.float-3,.cycle-badge{animation:none;}
     .reveal{transition:none;opacity:1;transform:none;}
   }
 
@@ -183,6 +184,39 @@
   }
 
   .check-item::before{content:"✓";display:inline-flex;align-items:center;justify-content:center;width:20px;height:20px;border-radius:9999px;background:var(--green);color:#fff;font-size:12px;font-weight:800;margin-right:10px;flex-shrink:0;}
+
+  /* Toggle Mensal / Anual — chavinha liga/desliga */
+  .cycle-toggle-wrap{
+    display:inline-flex;align-items:center;justify-content:center;gap:12px;
+    flex-wrap:wrap;margin-bottom:40px;
+  }
+  .cycle-label{
+    font-weight:700;font-size:14px;color:var(--muted);cursor:pointer;
+    transition:color .25s ease;user-select:none;
+  }
+  .cycle-label.is-active{color:var(--cream);}
+  .cycle-switch{
+    width:52px;height:30px;border-radius:9999px;border:none;cursor:pointer;
+    background:rgba(255,255,255,.14);position:relative;flex-shrink:0;padding:0;
+    transition:background .3s ease;
+  }
+  .cycle-switch:focus-visible{outline:2px solid var(--purple);outline-offset:3px;}
+  .cycle-switch[aria-checked="true"]{background:linear-gradient(90deg,var(--pink),var(--purple));}
+  .cycle-switch-knob{
+    position:absolute;top:3px;left:3px;width:24px;height:24px;border-radius:50%;
+    background:#fff;box-shadow:0 2px 6px rgba(0,0,0,.3);
+    transition:transform .3s cubic-bezier(.34,1.56,.64,1);
+  }
+  .cycle-switch[aria-checked="true"] .cycle-switch-knob{transform:translateX(22px);}
+  .cycle-badge{
+    font-size:11px;font-weight:800;background:var(--green);color:#fff;
+    padding:5px 12px;border-radius:9999px;letter-spacing:.02em;
+    animation:cycleBadgePulse 2.4s ease-in-out infinite;
+  }
+  @keyframes cycleBadgePulse{0%,100%{transform:scale(1);}50%{transform:scale(1.07);}}
+
+  /* Recurso que falta no plano (comparado ao plano de cima) */
+  .not-item::before{content:"✕";display:inline-flex;align-items:center;justify-content:center;width:20px;height:20px;border-radius:9999px;background:rgba(239,68,68,.15);color:#EF4444;font-size:12px;font-weight:800;margin-right:10px;flex-shrink:0;}
 
   /* FAQ accordion */
   details summary{list-style:none;display:flex;justify-content:space-between;align-items:center;gap:12px;}
@@ -587,6 +621,45 @@ src="https://www.facebook.com/tr?id=1565446158304634&ev=PageView&noscript=1"
 </section>
 
 <!-- ============================================================
+     MENSAGENS AUTOMÁTICAS NO WHATSAPP
+============================================================ -->
+<section class="relative px-6 py-24 overflow-hidden" style="background:var(--surface)">
+  <div class="aurora aurora-2" style="width:420px;height:420px;background:#25D366;top:-100px;left:-60px;opacity:.35;"></div>
+
+  <div class="relative max-w-5xl mx-auto">
+    <div class="text-center mb-14 reveal">
+      <p class="section-eyebrow mb-3" style="color:var(--pink)">No automático</p>
+      <h2 class="display text-3xl sm:text-4xl font-bold mb-4">Mensagens automáticas no WhatsApp</h2>
+      <p class="text-sm sm:text-base max-w-2xl mx-auto" style="color:var(--muted)">Conecte o seu número uma vez só. Depois disso, boas-vindas, contrato, lembrete de sinal, confirmação de agendamento, retirada, devolução e até feliz aniversário saem sozinhos, na hora certa — sempre pelo seu próprio WhatsApp.</p>
+    </div>
+
+    <div class="reveal">
+      <div class="glass rounded-3xl overflow-hidden relative mx-auto p-4 sm:p-5" style="max-width:360px;background:radial-gradient(circle at 70% 15%, rgba(37,211,102,.25), transparent 55%), var(--surface-2);box-shadow:0 30px 80px -30px rgba(0,0,0,.5);">
+        <div class="rounded-2xl overflow-hidden relative" style="aspect-ratio:941/1672;">
+          <picture>
+            <source srcset="whatsapp-automacoes-mockup.webp" type="image/webp">
+            <img src="whatsapp-automacoes-mockup.png" alt="Tela de automações do WhatsApp no AppDecore, com WhatsApp conectado e as ações automáticas ligadas: boas-vindas, contrato, lembrete de sinal, confirmação de agendamento, retirada, devolução e feliz aniversário" width="941" height="1672" loading="lazy" decoding="async" class="w-full h-full object-cover" />
+          </picture>
+        </div>
+      </div>
+    </div>
+
+    <div class="grid sm:grid-cols-3 gap-4 mt-14 max-w-3xl mx-auto">
+      <div class="glass rounded-2xl px-5 py-4 text-sm reveal reveal-1 flex items-center check-item">Boas-vindas automáticas pra quem chama pela primeira vez</div>
+      <div class="glass rounded-2xl px-5 py-4 text-sm reveal reveal-2 flex items-center check-item">Contrato enviado sozinho, sem digitar nada de novo</div>
+      <div class="glass rounded-2xl px-5 py-4 text-sm reveal reveal-3 flex items-center check-item">Lembrete de sinal e confirmação de agendamento</div>
+      <div class="glass rounded-2xl px-5 py-4 text-sm reveal reveal-4 flex items-center check-item">Lembrete de retirada e de devolução, no dia certo</div>
+      <div class="glass rounded-2xl px-5 py-4 text-sm reveal reveal-5 flex items-center check-item">Feliz aniversário pra fidelizar sem esforço nenhum</div>
+      <div class="glass rounded-2xl px-5 py-4 text-sm reveal reveal-6 flex items-center check-item">Liga e desliga cada automação quando quiser</div>
+    </div>
+
+    <div class="text-center mt-12 reveal">
+      <a href="#precos" class="btn-cta inline-block text-white font-bold text-base px-8 py-4 rounded-2xl">Quero Automatizar Meu WhatsApp</a>
+    </div>
+  </div>
+</section>
+
+<!-- ============================================================
      COVERFLOW — TELAS DO APP
 ============================================================ -->
 <section class="relative px-6 py-24 overflow-hidden">
@@ -847,38 +920,67 @@ src="https://www.facebook.com/tr?id=1565446158304634&ev=PageView&noscript=1"
   <div class="max-w-3xl mx-auto text-center reveal">
     <p class="section-eyebrow mb-3" style="color:var(--purple)">Sem letra miúda</p>
     <h2 class="display text-3xl sm:text-4xl font-bold mb-3">Simples e direto.<br/>Escolha o plano <span class="grad-text">certo pra você.</span></h2>
-    <p class="text-sm mb-10" style="color:var(--muted)">Menos do que a concorrência cobra, com muito mais recurso.</p>
+    <p class="text-sm mb-8" style="color:var(--muted)">Menos do que a concorrência cobra, com muito mais recurso.</p>
 
-    <div class="grid sm:grid-cols-2 gap-6 text-left">
+    <!-- Toggle Mensal / Anual — chavinha liga/desliga -->
+    <div class="cycle-toggle-wrap reveal">
+      <span id="label-mensal" class="cycle-label is-active" onclick="setCiclo('mensal')">Mensal</span>
+      <button type="button" id="cycle-switch" class="cycle-switch" role="switch" aria-checked="false" aria-label="Alternar entre cobrança mensal e anual" onclick="setCiclo(this.getAttribute('aria-checked') === 'true' ? 'mensal' : 'anual')">
+        <span class="cycle-switch-knob"></span>
+      </button>
+      <span id="label-anual" class="cycle-label" onclick="setCiclo('anual')">Anual</span>
+      <span class="cycle-badge">🎉 2 meses grátis</span>
+    </div>
+
+    <div id="precos-grid" class="grid sm:grid-cols-2 gap-6 text-left" data-cycle-atual="mensal">
       <!-- PLANO BÁSICO -->
       <div class="glass-card rounded-3xl p-8">
         <p class="text-xs font-bold uppercase tracking-wider mb-2" style="color:var(--pink)">Básico</p>
-        <p class="text-base mb-1" style="color:var(--muted)"><span style="text-decoration:line-through">R$ 69,90</span></p>
-        <p class="display text-5xl font-bold mb-1">R$ 29<span class="text-2xl">,90</span><span class="text-sm font-normal" style="color:var(--muted)">/mês</span></p>
-        <ul class="text-sm text-left space-y-3 mb-8" style="color:var(--cream)">
+        <div data-cycle="mensal">
+          <p class="text-base mb-1" style="color:var(--muted)"><span style="text-decoration:line-through">R$ 69,90</span></p>
+          <p class="display text-5xl font-bold mb-1">R$ 29<span class="text-2xl">,90</span><span class="text-sm font-normal" style="color:var(--muted)">/mês</span></p>
+        </div>
+        <div data-cycle="anual" style="display:none">
+          <p class="text-base mb-1" style="color:var(--muted)"><span style="text-decoration:line-through">R$ 358,80</span></p>
+          <p class="display text-5xl font-bold mb-1">R$ 297<span class="text-2xl">,90</span><span class="text-sm font-normal" style="color:var(--muted)">/ano</span></p>
+          <p class="text-xs mb-1" style="color:var(--green)">Equivale a R$ 24,82/mês</p>
+        </div>
+        <ul class="text-sm text-left space-y-3 mb-8 mt-4" style="color:var(--cream)">
           <li class="flex items-center check-item">Contrato com assinatura digital</li>
           <li class="flex items-center check-item">Estoque automático (até 150 peças)</li>
           <li class="flex items-center check-item">Agenda com lembretes</li>
           <li class="flex items-center check-item">Financeiro completo</li>
           <li class="flex items-center check-item">Oportunidades de venda</li>
+          <li class="flex items-center not-item" style="color:var(--muted)">Catálogo inteligente com IA</li>
+          <li class="flex items-center not-item" style="color:var(--muted)">WhatsApp automático</li>
         </ul>
-        <a href="https://pay.cakto.com.br/b3o264t_975931" class="btn-cta block text-white font-bold text-base px-8 py-4 rounded-2xl">Garantir Meu Acesso</a>
+        <a data-cycle="mensal" href="https://pay.cakto.com.br/b3o264t_975931" class="btn-cta block text-white font-bold text-base px-8 py-4 rounded-2xl">Garantir Meu Acesso</a>
+        <a data-cycle="anual" href="#" style="display:none" class="btn-cta block text-white font-bold text-base px-8 py-4 rounded-2xl">Garantir Meu Acesso</a>
       </div>
 
       <!-- PLANO PREMIUM -->
       <div id="plano-premium" class="glass-card rounded-3xl p-8" style="border:1px solid rgba(236,30,121,.5)">
         <p class="text-xs font-bold uppercase tracking-wider mb-2" style="color:var(--pink)">Premium + Catálogo Inteligente</p>
-        <p class="text-base mb-1" style="color:var(--muted)"><span style="text-decoration:line-through">R$ 89,90</span></p>
-        <p class="display text-5xl font-bold mb-1">R$ 59<span class="text-2xl">,90</span><span class="text-sm font-normal" style="color:var(--muted)">/mês</span></p>
-        <ul class="text-sm text-left space-y-3 mb-8" style="color:var(--cream)">
+        <div data-cycle="mensal">
+          <p class="text-base mb-1" style="color:var(--muted)"><span style="text-decoration:line-through">R$ 89,90</span></p>
+          <p class="display text-5xl font-bold mb-1">R$ 59<span class="text-2xl">,90</span><span class="text-sm font-normal" style="color:var(--muted)">/mês</span></p>
+        </div>
+        <div data-cycle="anual" style="display:none">
+          <p class="text-base mb-1" style="color:var(--muted)"><span style="text-decoration:line-through">R$ 718,80</span></p>
+          <p class="display text-5xl font-bold mb-1">R$ 597<span class="text-2xl">,90</span><span class="text-sm font-normal" style="color:var(--muted)">/ano</span></p>
+          <p class="text-xs mb-1" style="color:var(--green)">Equivale a R$ 49,82/mês</p>
+        </div>
+        <ul class="text-sm text-left space-y-3 mb-8 mt-4" style="color:var(--cream)">
           <li class="flex items-center check-item">Contrato com assinatura digital</li>
           <li class="flex items-center check-item">Estoque automático, sem limite de peças</li>
           <li class="flex items-center check-item">Catálogo inteligente com IA</li>
           <li class="flex items-center check-item">Agenda com lembretes</li>
           <li class="flex items-center check-item">Financeiro completo</li>
           <li class="flex items-center check-item">Oportunidades de venda</li>
+          <li class="flex items-center check-item">WhatsApp automático</li>
         </ul>
-        <a href="https://pay.cakto.com.br/v6va3mm" class="btn-cta block text-white font-bold text-base px-8 py-4 rounded-2xl">Garantir Meu Acesso</a>
+        <a data-cycle="mensal" href="https://pay.cakto.com.br/v6va3mm" class="btn-cta block text-white font-bold text-base px-8 py-4 rounded-2xl">Garantir Meu Acesso</a>
+        <a data-cycle="anual" href="#" style="display:none" class="btn-cta block text-white font-bold text-base px-8 py-4 rounded-2xl">Garantir Meu Acesso</a>
       </div>
     </div>
   </div>
@@ -939,6 +1041,19 @@ src="https://www.facebook.com/tr?id=1565446158304634&ev=PageView&noscript=1"
 </footer>
 
 <script>
+  // Toggle Mensal / Anual dos planos — só troca o que já está na página, sem recarregar nada.
+  function setCiclo(ciclo){
+    var grid = document.getElementById('precos-grid');
+    if (!grid) return;
+    grid.dataset.cycleAtual = ciclo;
+    grid.querySelectorAll('[data-cycle]').forEach(function(el){
+      el.style.display = (el.getAttribute('data-cycle') === ciclo) ? '' : 'none';
+    });
+    document.getElementById('label-mensal').classList.toggle('is-active', ciclo === 'mensal');
+    document.getElementById('label-anual').classList.toggle('is-active', ciclo === 'anual');
+    document.getElementById('cycle-switch').setAttribute('aria-checked', ciclo === 'anual');
+  }
+
   var reveals = document.querySelectorAll('.reveal');
   var observer = new IntersectionObserver(function(entries){
     entries.forEach(function(entry){
