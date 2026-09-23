@@ -185,35 +185,34 @@
 
   .check-item::before{content:"✓";display:inline-flex;align-items:center;justify-content:center;width:20px;height:20px;border-radius:9999px;background:var(--green);color:#fff;font-size:12px;font-weight:800;margin-right:10px;flex-shrink:0;}
 
-  /* Toggle Mensal / Anual — chavinha liga/desliga */
+  /* Toggle Mensal / Anual — dois botões grandes, fácil de tocar no celular */
   .cycle-toggle-wrap{
-    display:inline-flex;align-items:center;justify-content:center;gap:12px;
+    display:inline-flex;align-items:center;justify-content:center;gap:6px;
     flex-wrap:wrap;margin-bottom:40px;
+    background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.12);
+    border-radius:9999px;padding:8px;
   }
-  .cycle-label{
-    font-weight:700;font-size:14px;color:var(--muted);cursor:pointer;
-    transition:color .25s ease;user-select:none;
+  .cycle-btn{
+    border:none;background:transparent;cursor:pointer;
+    padding:16px 32px;border-radius:9999px;font-weight:800;font-size:17px;
+    color:var(--muted);transition:background .25s ease, color .25s ease, transform .2s ease;
+    display:inline-flex;align-items:center;gap:10px;font-family:'Space Grotesk',sans-serif;
   }
-  .cycle-label.is-active{color:var(--cream);}
-  .cycle-switch{
-    width:52px;height:30px;border-radius:9999px;border:none;cursor:pointer;
-    background:rgba(255,255,255,.14);position:relative;flex-shrink:0;padding:0;
-    transition:background .3s ease;
+  .cycle-btn.is-active{
+    background:linear-gradient(90deg,var(--pink),var(--purple));color:#fff;
+    box-shadow:0 12px 30px -10px rgba(236,30,121,.55);
   }
-  .cycle-switch:focus-visible{outline:2px solid var(--purple);outline-offset:3px;}
-  .cycle-switch[aria-checked="true"]{background:linear-gradient(90deg,var(--pink),var(--purple));}
-  .cycle-switch-knob{
-    position:absolute;top:3px;left:3px;width:24px;height:24px;border-radius:50%;
-    background:#fff;box-shadow:0 2px 6px rgba(0,0,0,.3);
-    transition:transform .3s cubic-bezier(.34,1.56,.64,1);
-  }
-  .cycle-switch[aria-checked="true"] .cycle-switch-knob{transform:translateX(22px);}
+  .cycle-btn:not(.is-active):hover{color:var(--cream);}
   .cycle-badge{
-    font-size:11px;font-weight:800;background:var(--green);color:#fff;
+    font-size:12px;font-weight:800;background:var(--green);color:#fff;
     padding:5px 12px;border-radius:9999px;letter-spacing:.02em;
     animation:cycleBadgePulse 2.4s ease-in-out infinite;
   }
   @keyframes cycleBadgePulse{0%,100%{transform:scale(1);}50%{transform:scale(1.07);}}
+  @media (max-width:420px){
+    .cycle-btn{padding:12px 18px;font-size:15px;flex-direction:column;gap:4px;}
+    .cycle-badge{white-space:nowrap;font-size:10px;padding:3px 9px;}
+  }
 
   /* Recurso que falta no plano (comparado ao plano de cima) */
   .not-item::before{content:"✕";display:inline-flex;align-items:center;justify-content:center;width:20px;height:20px;border-radius:9999px;background:rgba(239,68,68,.15);color:#EF4444;font-size:12px;font-weight:800;margin-right:10px;flex-shrink:0;}
@@ -922,14 +921,12 @@ src="https://www.facebook.com/tr?id=1565446158304634&ev=PageView&noscript=1"
     <h2 class="display text-3xl sm:text-4xl font-bold mb-3">Simples e direto.<br/>Escolha o plano <span class="grad-text">certo pra você.</span></h2>
     <p class="text-sm mb-8" style="color:var(--muted)">Menos do que a concorrência cobra, com muito mais recurso.</p>
 
-    <!-- Toggle Mensal / Anual — chavinha liga/desliga -->
-    <div class="cycle-toggle-wrap reveal">
-      <span id="label-mensal" class="cycle-label is-active" onclick="setCiclo('mensal')">Mensal</span>
-      <button type="button" id="cycle-switch" class="cycle-switch" role="switch" aria-checked="false" aria-label="Alternar entre cobrança mensal e anual" onclick="setCiclo(this.getAttribute('aria-checked') === 'true' ? 'mensal' : 'anual')">
-        <span class="cycle-switch-knob"></span>
+    <!-- Toggle Mensal / Anual — dois botões grandes, bem fácil de tocar -->
+    <div class="cycle-toggle-wrap reveal" role="tablist" aria-label="Escolher ciclo de cobrança">
+      <button type="button" id="toggle-mensal" class="cycle-btn is-active" role="tab" aria-selected="true" onclick="setCiclo('mensal')">Mensal</button>
+      <button type="button" id="toggle-anual" class="cycle-btn" role="tab" aria-selected="false" onclick="setCiclo('anual')">
+        Anual <span class="cycle-badge">🎉 2 meses grátis</span>
       </button>
-      <span id="label-anual" class="cycle-label" onclick="setCiclo('anual')">Anual</span>
-      <span class="cycle-badge">🎉 2 meses grátis</span>
     </div>
 
     <div id="precos-grid" class="grid sm:grid-cols-2 gap-6 text-left" data-cycle-atual="mensal">
@@ -1049,9 +1046,10 @@ src="https://www.facebook.com/tr?id=1565446158304634&ev=PageView&noscript=1"
     grid.querySelectorAll('[data-cycle]').forEach(function(el){
       el.style.display = (el.getAttribute('data-cycle') === ciclo) ? '' : 'none';
     });
-    document.getElementById('label-mensal').classList.toggle('is-active', ciclo === 'mensal');
-    document.getElementById('label-anual').classList.toggle('is-active', ciclo === 'anual');
-    document.getElementById('cycle-switch').setAttribute('aria-checked', ciclo === 'anual');
+    document.getElementById('toggle-mensal').classList.toggle('is-active', ciclo === 'mensal');
+    document.getElementById('toggle-anual').classList.toggle('is-active', ciclo === 'anual');
+    document.getElementById('toggle-mensal').setAttribute('aria-selected', ciclo === 'mensal');
+    document.getElementById('toggle-anual').setAttribute('aria-selected', ciclo === 'anual');
   }
 
   var reveals = document.querySelectorAll('.reveal');
