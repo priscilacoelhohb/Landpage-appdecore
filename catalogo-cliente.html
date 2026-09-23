@@ -85,7 +85,7 @@ function CardKit({ kit, mostrarValores, corDestaque, categoriaLabel, onAbrir }) 
     >
       <div className="relative aspect-square bg-slate-100">
         {foto ? <img src={foto.imagem_url} className="w-full h-full object-cover" /> : <div className="w-full h-full flex items-center justify-center text-3xl">🎁</div>}
-        {kit.em_destaque && <span className="absolute top-2 left-2 text-[10px] font-bold px-2 py-0.5 rounded-full text-white" style={{ background: "#FFC93C", color: "#5c4200" }}>⭐ Destaque</span>}
+        {kit.em_destaque && <span className="absolute top-2 left-2 text-[10px] font-bold px-2 py-0.5 rounded-full text-white" style={{ background: "#FFC93C", color: "#5c4200" }}>🔥 Mais alugado</span>}
       </div>
       <div className="p-3">
         <p className="font-bold text-sm truncate" style={{ color: AZUL }}>{kit.nome}</p>
@@ -237,6 +237,7 @@ function DetalheKit({ kit, mostrarValores, corDestaque, categoriaLabel, favorita
       <div className="max-w-md mx-auto px-4 pb-8">
         <button onClick={() => setFotoAmpliada(true)} className="relative aspect-square rounded-3xl overflow-hidden bg-slate-100 mt-4 mb-2 w-full cursor-zoom-in">
           {fotos[indiceFoto] ? <img src={fotos[indiceFoto].imagem_url} className="w-full h-full object-cover" /> : <div className="w-full h-full flex items-center justify-center text-4xl">🎁</div>}
+          {kit.em_destaque && <span className="absolute top-3 left-3 text-xs font-bold px-2.5 py-1 rounded-full" style={{ background: "#FFC93C", color: "#5c4200" }}>🔥 Mais alugado</span>}
         </button>
         {fotos.length > 1 && (
           <div className="flex gap-2 mb-4 overflow-x-auto">
@@ -579,7 +580,7 @@ function App() {
 
         {destaques.length > 0 && (
           <div className="mt-4 mb-2">
-            <p className="text-xs font-bold uppercase tracking-wide mb-2" style={{ color: corDestaque }}>⭐ Em destaque</p>
+            <p className="text-xs font-bold uppercase tracking-wide mb-2" style={{ color: corDestaque }}>🔥 Mais alugados</p>
             <div className="grid grid-cols-2 gap-3">
               {destaques.map((k) => <CardKit key={k.id} kit={k} mostrarValores={mostrarValores} corDestaque={corDestaque} categoriaLabel={categoriaLabelPorKit[k.id]} onAbrir={setKitAberto} />)}
             </div>
