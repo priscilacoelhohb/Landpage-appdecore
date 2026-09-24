@@ -215,15 +215,24 @@ function ModalExplicacaoServico({ servico, onFechar }) {
   );
 }
 
+// Link da foto de capa do kit pra ir junto na mensagem do WhatsApp (a
+// decoradora abre e vê qual kit é). No modo demo a foto é data: URI —
+// enorme e inútil no WhatsApp — então só entra link http de verdade.
+function linkFotoKit(kit) {
+  const url = kit.fotos && kit.fotos[0] && kit.fotos[0].imagem_url;
+  return url && /^https?:\/\//.test(url) ? url : null;
+}
+
 function DetalheKit({ kit, mostrarValores, corDestaque, categoriaLabel, favoritado, onFavoritar, onFechar, whatsappContato }) {
   const [indiceFoto, setIndiceFoto] = useState(0);
   const [fotoAmpliada, setFotoAmpliada] = useState(false);
   const fotos = kit.fotos || [];
   const linkKit = `${window.location.origin}${window.location.pathname}?d=${new URLSearchParams(window.location.search).get("d") || "demo"}&kit=${kit.id}`;
   const mostrarPreco = mostrarValores && kit.mostrar_preco !== false;
-  const mensagem = mostrarPreco
+  const fotoKit = linkFotoKit(kit);
+  const mensagem = (mostrarPreco
     ? `Oi! Vi o kit "${kit.nome}" no catálogo (${Number(kit.preco || 0).toLocaleString("pt-BR", { style: "currency", currency: "BRL" })}) e quero saber a disponibilidade.`
-    : `Oi! Vi o kit "${kit.nome}" no catálogo e quero saber o valor e a disponibilidade.`;
+    : `Oi! Vi o kit "${kit.nome}" no catálogo e quero saber o valor e a disponibilidade.`) + (fotoKit ? `\n\nFoto do kit: ${fotoKit}` : "");
 
   return (
     <div className="fixed inset-0 z-50 bg-white overflow-y-auto anim-entrar">
@@ -297,7 +306,7 @@ function DetalheKit({ kit, mostrarValores, corDestaque, categoriaLabel, favorita
 function BarraFavoritos({ favoritos, corDestaque, whatsappContato }) {
   const [aberto, setAberto] = useState(false);
   if (favoritos.length === 0) return null;
-  const mensagem = `Oi! Gostei destes kits no catálogo:\n\n${favoritos.map((k) => `• ${k.nome}`).join("\n")}\n\nQuero saber a disponibilidade!`;
+  const mensagem = `Oi! Gostei destes kits no catálogo:\n\n${favoritos.map((k) => { const foto = linkFotoKit(k); return `• ${k.nome}${foto ? `\n${foto}` : ""}`; }).join("\n\n")}\n\nQuero saber a disponibilidade!`;
   return (
     <>
       <button onClick={() => setAberto(true)} className="fixed bottom-4 right-4 z-30 px-4 py-3 rounded-full font-bold text-sm text-white shadow-lg cursor-pointer flex items-center gap-2" style={{ background: corDestaque }}>
