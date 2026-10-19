@@ -1161,5 +1161,34 @@ src="https://www.facebook.com/tr?id=1565446158304634&ev=PageView&noscript=1"
   })();
 </script>
 
+<!-- Rastreio do anúncio até o checkout: leva fbclid/UTMs pros links da Cakto
+     (sem isso a compra chega no Meta sem saber de qual anúncio veio) e avisa o
+     Pixel quando a pessoa clica em comprar (InitiateCheckout). -->
+<script>
+(function () {
+  var CHAVES = ['utm_source', 'utm_medium', 'utm_campaign', 'utm_term', 'utm_content', 'fbclid', 'src', 'sck'];
+  var salvos = {};
+  try { salvos = JSON.parse(sessionStorage.getItem('ad_params') || '{}'); } catch (e) {}
+  var url = new URLSearchParams(location.search);
+  CHAVES.forEach(function (k) { if (url.get(k)) salvos[k] = url.get(k); });
+  // Visitante que voltou sem o fbclid na URL: recupera do cookie _fbc do Pixel (fb.1.<ts>.<fbclid>)
+  if (!salvos.fbclid) {
+    var m = document.cookie.match(/(?:^|; )_fbc=([^;]*)/);
+    if (m) { var partes = decodeURIComponent(m[1]).split('.'); if (partes.length >= 4) salvos.fbclid = partes.slice(3).join('.'); }
+  }
+  try { sessionStorage.setItem('ad_params', JSON.stringify(salvos)); } catch (e) {}
+
+  document.querySelectorAll('a[href*="pay.cakto.com.br"]').forEach(function (a) {
+    try {
+      var destino = new URL(a.href);
+      Object.keys(salvos).forEach(function (k) { if (!destino.searchParams.has(k)) destino.searchParams.set(k, salvos[k]); });
+      a.href = destino.toString();
+    } catch (e) {}
+    a.addEventListener('click', function () {
+      try { if (window.fbq) fbq('track', 'InitiateCheckout', { currency: 'BRL' }); } catch (e) {}
+    });
+  });
+})();
+</script>
 </body>
 </html>
