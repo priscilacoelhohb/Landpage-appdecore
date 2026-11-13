@@ -418,7 +418,11 @@ function App() {
         : { data: [] };
       const fotosPorKit = {};
       (listaFotos || []).forEach((f) => { (fotosPorKit[f.kit_id] = fotosPorKit[f.kit_id] || []).push(f); });
-      const kitsCompletos = (listaKits || []).map((k) => ({ ...k, fotos: fotosPorKit[k.id] || [] }));
+      // Kits em ordem alfabética (os "Mais alugado" continuam na fileira de
+      // destaque lá em cima). numeric: "Kit 2" vem antes de "Kit 10".
+      const kitsCompletos = (listaKits || [])
+        .map((k) => ({ ...k, fotos: fotosPorKit[k.id] || [] }))
+        .sort((a, b) => (a.nome || "").trim().localeCompare((b.nome || "").trim(), "pt-BR", { sensitivity: "base", numeric: true }));
       setDecoradora(dec);
       setKits(kitsCompletos);
       setCarregando(false);
